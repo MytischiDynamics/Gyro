@@ -1,0 +1,17 @@
+*.hex
+*.out
+*.o
+*.pbd
+*.browse
+*.pbi
+*.cout
+*.dep
+*.ewd
+*.ewp
+*.dni
+*.bat
+*.a
+*.xml
+*.html
+*.
+
