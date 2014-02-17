@@ -7,7 +7,6 @@
 *.cout
 *.dep
 *.ewd
-*.ewp
 *.dni
 *.bat
 *.a
