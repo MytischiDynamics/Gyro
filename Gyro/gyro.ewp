@@ -1949,6 +1949,9 @@
   <file>
     <name>$PROJ_DIR$\gyro.c</name>
   </file>
+  <file>
+    <name>$PROJ_DIR$\stm32f4xx_it.c</name>
+  </file>
 </project>
 
 
