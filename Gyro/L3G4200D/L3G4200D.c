@@ -1,5 +1,8 @@
 #include "L3G4200D.h"
 
+#define READWRITE_CMD              ((uint8_t)0x80) 
+#define MULTIPLEBYTE_CMD           ((uint8_t)0x40)
+
 l3g4200d_error l3g4200d_set_active_bus(l3g4200d_active_bus bus, l3g4200d_conf *conf)
 {
 	if(conf == NULL) {
@@ -168,9 +171,36 @@ uint16_t CS_PIN, GPIO_TypeDef *CS_GPIO_PORT, uint32_t CS_GPIO_CLK)
 	return NO_ERROR;
 }
 
+l3g4200d_error l3g4200d_cs_low(l3g4200d_connectivity_conf *conn)
+{
+	if(conn == NULL) {
+		return ERROR_NULL_POINTER;
+	} else if (conn->init_status == STRUCT_NOT_INITIALIZED) {
+		return ERROR_DEVICE_NOT_INITIALIZED;
+	} else {
+		GPIO_ResetBits(conn->cs_pin.SPIx_GPIO_PORT,
+				conn->cs_pin.SPIx_PIN);
+		return NO_ERROR;
+	}
+}
+
+l3g4200d_error l3g4200d_cs_high(l3g4200d_connectivity_conf *conn)
+{
+	if(conn == NULL) {
+		return ERROR_NULL_POINTER;
+	} else if (conn->init_status == STRUCT_NOT_INITIALIZED) {
+		return ERROR_DEVICE_NOT_INITIALIZED;
+	} else {
+		GPIO_SetBits(conn->cs_pin.SPIx_GPIO_PORT,
+				conn->cs_pin.SPIx_PIN);
+		return NO_ERROR;
+	}
+}
+
 l3g4200d_error l3g4200d_read(uint8_t *buffer, uint8_t addr,
 			     uint16_t bytes_to_read, l3g4200d_conf *conf)
 {
+	uint8_t address = 0;
 	if (buffer == NULL || conf == NULL) {
 		return ERROR_NULL_POINTER;
 	} else if (conf->connectivity.init_status == STRUCT_NOT_INITIALIZED) {
@@ -178,6 +208,12 @@ l3g4200d_error l3g4200d_read(uint8_t *buffer, uint8_t addr,
 	} else if (bytes_to_read < 1) {
 		return ERROR_VALUE_NOT_IN_RANGE;
 	} else {
+		if (bytes_to_read > 1) {
+			address = (uint8_t)(READWRITE_CMD | MULTIPLEBYTE_CMD | addr);
+		} else {
+			address = (uint8_t)(READWRITE_CMD | addr);
+		}
+		l3g4200d_cs_low(conf->connectivity);
 		
 	}
 }
