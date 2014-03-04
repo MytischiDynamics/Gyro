@@ -33,12 +33,15 @@
 #define INT1_DURATION	0x38
 
 #define DEFAULT_DEVICE_ID 0xD3
+#define L3G4200D_TIMEOUT_COUNTER ((uint32_t)0x1000)
+
 typedef enum {
 	NO_ERROR = 0,
 	ERROR_NULL_POINTER,
 	ERROR_VALUE_NOT_IN_RANGE,
 	ERROR_DEVICE_NOT_INITIALIZED,
 	ERROR_DEVICE_ID_NOT_VALID,
+	ERROR_NO_DATA_RECEIVED,
 
 	EROR_LAST_ERROR
 } l3g4200d_error;
@@ -99,6 +102,6 @@ typedef struct {
 	
 } l3g4200d_conf;
 
-
+uint32_t l3g4200dTimeoutCallback();
 
 #endif

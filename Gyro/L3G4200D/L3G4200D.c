@@ -1,9 +1,10 @@
 #include "L3G4200D.h"
 
-#define READWRITE_CMD              ((uint8_t)0x80) 
-#define MULTIPLEBYTE_CMD           ((uint8_t)0x40)
+#define READWRITE_CMD			((uint8_t)0x80) 
+#define MULTIPLEBYTE_CMD		((uint8_t)0x40)
+#define DUMMY_BYTE			((uint8_t)0x00)
 
-l3g4200d_error l3g4200d_set_active_bus(l3g4200d_active_bus bus, l3g4200d_conf *conf)
+l3g4200d_error l3g4200dSetActiveBus(l3g4200d_active_bus bus, l3g4200d_conf *conf)
 {
 	if(conf == NULL) {
 		return ERROR_NULL_POINTER;
@@ -15,7 +16,7 @@ l3g4200d_error l3g4200d_set_active_bus(l3g4200d_active_bus bus, l3g4200d_conf *c
 	}	
 }
 
-l3g4200d_error l3g4200d_get_active_bus(l3g4200d_conf *conf,
+l3g4200d_error l3g4200dGetActiveBus(l3g4200d_conf *conf,
 					l3g4200d_active_bus *bus)
 {
 	if(conf == NULL || bus == NULL) {
@@ -26,7 +27,7 @@ l3g4200d_error l3g4200d_get_active_bus(l3g4200d_conf *conf,
 	}
 }
 
-l3g4200d_error l3g4200d_check_device_id(l3g4200d_conf *conf)
+l3g4200d_error l3g4200dCheckDeviceId(l3g4200d_conf *conf)
 {
 	if (conf == NULL) {
 		return ERROR_NULL_POINTER;
@@ -37,7 +38,7 @@ l3g4200d_error l3g4200d_check_device_id(l3g4200d_conf *conf)
 	}
 }
 
-l3g4200d_init_status l3g4200d_is_initialized(l3g4200d_conf *conf)
+l3g4200d_init_status l3g4200dIsInitialized(l3g4200d_conf *conf)
 {
 	if(conf == NULL) {
 		return STRUCT_NOT_INITIALIZED;
@@ -46,7 +47,7 @@ l3g4200d_init_status l3g4200d_is_initialized(l3g4200d_conf *conf)
 	}
 }
 
-l3g4200d_error l3g4200d_init_connectivity(l3g4200d_connectivity_conf *conn,
+l3g4200d_error l3g4200dInitConnectivity(l3g4200d_connectivity_conf *conn,
 SPI_TypeDef *SPIx, uint32_t SPIx_CLK,
 uint16_t SCK_PIN, GPIO_TypeDef *SCK_GPIO_PORT, uint32_t SCK_GPIO_CLK, uint8_t SCK_SOURCE, uint8_t SCK_AF,
 uint16_t MISO_PIN, GPIO_TypeDef *MISO_GPIO_PORT, uint32_t MISO_GPIO_CLK, uint8_t MISO_SOURCE, uint8_t MISO_AF,
@@ -88,13 +89,13 @@ uint16_t CS_PIN, GPIO_TypeDef *CS_GPIO_PORT, uint32_t CS_GPIO_CLK)
 	return NO_ERROR;
 }
 
-l3g4200d_error l3g4200d_init_periph(l3g4200d_connectivity_conf *conn)
+l3g4200d_error l3g4200dInitPeriph(l3g4200d_connectivity_conf *conn)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 	SPI_InitTypeDef  SPI_InitStructure;
 	if(conn == NULL) {
 		return ERROR_NULL_POINTER;
-	} else if(conn->init_status == DEVICE_NOT_INITIALIZED) {
+	} else if(conn->init_status == STRUCT_NOT_INITIALIZED) {
 		return ERROR_DEVICE_NOT_INITIALIZED;
 	} else {
 		RCC_APB1PeriphClockCmd( conn->SPIx_CLK, ENABLE);
@@ -151,7 +152,7 @@ l3g4200d_error l3g4200d_init_periph(l3g4200d_connectivity_conf *conn)
 	}
 }
 
-l3g4200d_error l3g4200d_init(l3g4200d_conf *conf,
+l3g4200d_error l3g4200dInit(l3g4200d_conf *conf,
 SPI_TypeDef *SPIx, uint32_t SPIx_CLK,
 uint16_t SCK_PIN, GPIO_TypeDef *SCK_GPIO_PORT, uint32_t SCK_GPIO_CLK, uint8_t SCK_SOURCE, uint8_t SCK_AF,
 uint16_t MISO_PIN, GPIO_TypeDef *MISO_GPIO_PORT, uint32_t MISO_GPIO_CLK, uint8_t MISO_SOURCE, uint8_t MISO_AF,
@@ -161,17 +162,17 @@ uint16_t CS_PIN, GPIO_TypeDef *CS_GPIO_PORT, uint32_t CS_GPIO_CLK)
 	if (conf == NULL) {
 		return ERROR_NULL_POINTER;
 	} else {
-		l3g4200d_init_connectivity(&(conf->connectivity), SPIx, SPIx_CLK,
+		l3g4200dInitConnectivity(&(conf->connectivity), SPIx, SPIx_CLK,
 			SCK_PIN, SCK_GPIO_PORT, SCK_GPIO_CLK, SCK_SOURCE, SCK_AF,
 			MISO_PIN, MISO_GPIO_PORT, MISO_GPIO_CLK, MISO_SOURCE, MISO_AF,
 			MOSI_PIN, MOSI_GPIO_PORT, MOSI_GPIO_CLK, MOSI_SOURCE, MOSI_AF,
 			CS_PIN, CS_GPIO_PORT, CS_GPIO_CLK);
-		l3g4200d_init_periph(&(conf->connectivity));
+		l3g4200dInitPeriph(&(conf->connectivity));
 	}
 	return NO_ERROR;
 }
 
-l3g4200d_error l3g4200d_cs_low(l3g4200d_connectivity_conf *conn)
+l3g4200d_error l3g4200dCsLow(l3g4200d_connectivity_conf *conn)
 {
 	if(conn == NULL) {
 		return ERROR_NULL_POINTER;
@@ -184,7 +185,7 @@ l3g4200d_error l3g4200d_cs_low(l3g4200d_connectivity_conf *conn)
 	}
 }
 
-l3g4200d_error l3g4200d_cs_high(l3g4200d_connectivity_conf *conn)
+l3g4200d_error l3g4200dCsHigh(l3g4200d_connectivity_conf *conn)
 {
 	if(conn == NULL) {
 		return ERROR_NULL_POINTER;
@@ -197,10 +198,35 @@ l3g4200d_error l3g4200d_cs_high(l3g4200d_connectivity_conf *conn)
 	}
 }
 
-l3g4200d_error l3g4200d_read(uint8_t *buffer, uint8_t addr,
+uint8_t l3g4200dSendByte(l3g4200d_connectivity_conf *conn, uint8_t msg)
+{
+	uint32_t timeout_counter = L3G4200D_TIMEOUT_COUNTER;
+	if (conn == NULL) {
+		return 0;
+	} else {
+		while(SPI_I2S_GetFlagStatus(conn->SPIx, SPI_I2S_FLAG_TXE) == RESET) {
+			if((timeout_counter--) == 0) {
+				return l3g4200dTimeoutCallback();
+			}
+		}
+		SPI_I2S_SendData(conn->SPIx, (uint16_t)msg);
+		
+		timeout_counter = L3G4200D_TIMEOUT_COUNTER;
+		while (SPI_I2S_GetFlagStatus(conn->SPIx, SPI_I2S_FLAG_RXNE) == RESET) {
+			if((timeout_counter--) == 0) {
+				return l3g4200dTimeoutCallback();
+			}
+		}
+		return (uint8_t)SPI_I2S_ReceiveData(conn->SPIx);
+	}
+}
+
+l3g4200d_error l3g4200dRead(uint8_t *buffer, uint8_t addr,
 			     uint16_t bytes_to_read, l3g4200d_conf *conf)
 {
-	uint8_t address = 0;
+	uint8_t address = 0;	
+	l3g4200d_error ret_err = NO_ERROR;
+
 	if (buffer == NULL || conf == NULL) {
 		return ERROR_NULL_POINTER;
 	} else if (conf->connectivity.init_status == STRUCT_NOT_INITIALIZED) {
@@ -213,7 +239,70 @@ l3g4200d_error l3g4200d_read(uint8_t *buffer, uint8_t addr,
 		} else {
 			address = (uint8_t)(READWRITE_CMD | addr);
 		}
-		l3g4200d_cs_low(conf->connectivity);
-		
+		ret_err = l3g4200dCsLow(&(conf->connectivity));
+		if (ret_err != NO_ERROR)
+			goto read_err;
+		l3g4200dSendByte(&(conf->connectivity), address);
+
+		while(bytes_to_read > 0) {
+/* Send dummy byte (0x00) to generate the SPI clock to L3G4200D (Slave device) */
+			*buffer = l3g4200dSendByte(&(conf->connectivity), DUMMY_BYTE);
+			bytes_to_read--;
+			buffer++;
+		}
+
+		ret_err = l3g4200dCsHigh(&(conf->connectivity));
+		if (ret_err != NO_ERROR) {
+			goto read_err;
+		}
+	}
+	return NO_ERROR;
+read_err:
+	return ret_err;
+}
+
+l3g4200d_error l3g4200dWrite(uint8_t *buffer, uint8_t addr,
+			     uint16_t bytes_to_write, l3g4200d_conf *conf)
+{
+	uint8_t address = 0;	
+	l3g4200d_error ret_err = NO_ERROR;
+
+	if (buffer == NULL || conf == NULL) {
+		return ERROR_NULL_POINTER;
+	} else if (conf->connectivity.init_status == STRUCT_NOT_INITIALIZED) {
+		return ERROR_DEVICE_NOT_INITIALIZED;
+	} else if (bytes_to_write < 1) {
+		return ERROR_VALUE_NOT_IN_RANGE;
+	} else {
+		if (bytes_to_write > 1) {
+			address = (uint8_t)(READWRITE_CMD | MULTIPLEBYTE_CMD | addr);
+		} else {
+			address = (uint8_t)(READWRITE_CMD | addr);
+		}
+		ret_err = l3g4200dCsLow(&(conf->connectivity));
+		if (ret_err != NO_ERROR)
+			goto write_err;
+		l3g4200dSendByte(&(conf->connectivity), address);
+		while (bytes_to_write >= 1) {
+			l3g4200dSendByte(&(conf->connectivity), *buffer);
+			buffer++;
+			bytes_to_write--;
+		}
+
+		ret_err = l3g4200dCsHigh(&(conf->connectivity));
+		if(ret_err != NO_ERROR) {
+			goto write_err;
+		}
+	}
+	return NO_ERROR;
+write_err:
+	return ret_err;
+}
+
+/*TODO: make device reset procedure*/
+uint32_t l3g4200dTimeoutCallback()
+{
+	while(1) {
+
 	}
 }
