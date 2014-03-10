@@ -2,6 +2,7 @@
 #define L3G4200D_H
 
 #include "stm32f4xx.h"
+#include "gyro_error.h"
 
 #define NULL (void*)0
 
@@ -34,17 +35,6 @@
 
 #define DEFAULT_DEVICE_ID 0xD3
 #define L3G4200D_TIMEOUT_COUNTER ((uint32_t)0x1000)
-
-typedef enum {
-	NO_ERROR = 0,
-	ERROR_NULL_POINTER,
-	ERROR_VALUE_NOT_IN_RANGE,
-	ERROR_DEVICE_NOT_INITIALIZED,
-	ERROR_DEVICE_ID_NOT_VALID,
-	ERROR_NO_DATA_RECEIVED,
-
-	EROR_LAST_ERROR
-} l3g4200d_error;
 
 typedef enum {
 	ACTIVE_SPI = 0,

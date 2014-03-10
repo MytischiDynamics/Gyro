@@ -4,7 +4,8 @@
 #define MULTIPLEBYTE_CMD		((uint8_t)0x40)
 #define DUMMY_BYTE			((uint8_t)0x00)
 
-l3g4200d_error l3g4200dSetActiveBus(l3g4200d_active_bus bus, l3g4200d_conf *conf)
+gyro_error l3g4200dSetActiveBus(l3g4200d_active_bus bus,
+					l3g4200d_conf *conf)
 {
 	if(conf == NULL) {
 		return ERROR_NULL_POINTER;
@@ -13,10 +14,10 @@ l3g4200d_error l3g4200dSetActiveBus(l3g4200d_active_bus bus, l3g4200d_conf *conf
 	} else {
 		conf->connectivity.active_bus = bus;
 		return NO_ERROR;
-	}	
+	}
 }
 
-l3g4200d_error l3g4200dGetActiveBus(l3g4200d_conf *conf,
+gyro_error l3g4200dGetActiveBus(l3g4200d_conf *conf,
 					l3g4200d_active_bus *bus)
 {
 	if(conf == NULL || bus == NULL) {
@@ -27,7 +28,7 @@ l3g4200d_error l3g4200dGetActiveBus(l3g4200d_conf *conf,
 	}
 }
 
-l3g4200d_error l3g4200dCheckDeviceId(l3g4200d_conf *conf)
+gyro_error l3g4200dCheckDeviceId(l3g4200d_conf *conf)
 {
 	if (conf == NULL) {
 		return ERROR_NULL_POINTER;
@@ -48,48 +49,49 @@ l3g4200d_init_status l3g4200dIsInitialized(l3g4200d_conf *conf)
 }
 
 l3g4200d_error l3g4200dInitConnectivity(l3g4200d_connectivity_conf *conn,
-SPI_TypeDef *SPIx, uint32_t SPIx_CLK,
-uint16_t SCK_PIN, GPIO_TypeDef *SCK_GPIO_PORT, uint32_t SCK_GPIO_CLK, uint8_t SCK_SOURCE, uint8_t SCK_AF,
-uint16_t MISO_PIN, GPIO_TypeDef *MISO_GPIO_PORT, uint32_t MISO_GPIO_CLK, uint8_t MISO_SOURCE, uint8_t MISO_AF,
-uint16_t MOSI_PIN, GPIO_TypeDef *MOSI_GPIO_PORT, uint32_t MOSI_GPIO_CLK, uint8_t MOSI_SOURCE, uint8_t MOSI_AF,
-uint16_t CS_PIN, GPIO_TypeDef *CS_GPIO_PORT, uint32_t CS_GPIO_CLK)
+					SPI_TypeDef *SPIx, uint32_t SPIx_CLK,
+					SPI_PIN_conf *pin_sck,
+					SPI_PIN_conf *pin_mosi,
+					SPI_PIN_conf *pin_miso,
+					SPI_PIN_conf *pin_cs)
 {
-	if (conn == NULL) {
+	if (conn == NULL || SPIx == NULL || pin_sck == NULL ||
+	    pin_mosi == NULL || pin_miso == NULL || pin_sc == NULL) {
 		return ERROR_NULL_POINTER;
 	} else {
 		conn->active_bus = ACTIVE_SPI;
 		
-		conn->SPIx = SPIx;
-		conn->SPIx_CLK = SPIx_CLK;
+		conn->SPIx = conn_val->SPIx;
+		conn->SPIx_CLK = conn_val->SPIx_CLK;
 
-		conn->sck_pin.SPIx_PIN = SCK_PIN;
-		conn->sck_pin.SPIx_GPIO_PORT = SCK_GPIO_PORT;
-		conn->sck_pin.SPIx_GPIO_CLK = SCK_GPIO_CLK;
-		conn->sck_pin.SPIx_SOURCE = SCK_SOURCE;
-		conn->sck_pin.SPIx_AF = SCK_AF;
+		conn->sck_pin.SPIx_PIN = pin_sck->SPIx_PIN;
+		conn->sck_pin.SPIx_GPIO_PORT = pin_sck->SPIx_GPIO_PORT;
+		conn->sck_pin.SPIx_GPIO_CLK = pin_sck->SPIx_GPIO_CLK;
+		conn->sck_pin.SPIx_SOURCE = pin_sck->SPIx_SOURCE;
+		conn->sck_pin.SPIx_AF = pin_sck->SPIx_AF;
 
-		conn->miso_pin.SPIx_PIN = MISO_PIN;
-		conn->miso_pin.SPIx_GPIO_PORT = MISO_GPIO_PORT;
-		conn->miso_pin.SPIx_GPIO_CLK = MISO_GPIO_CLK;
-		conn->miso_pin.SPIx_SOURCE = MISO_SOURCE;
-		conn->miso_pin.SPIx_AF = MISO_AF;
+		conn->miso_pin.SPIx_PIN = pin_miso->SPIx_PIN;
+		conn->miso_pin.SPIx_GPIO_PORT = pin_miso->SPIx_GPIO_PORT;
+		conn->miso_pin.SPIx_GPIO_CLK = pin_miso->SPIx_GPIO_CLK;
+		conn->miso_pin.SPIx_SOURCE = pin_miso->SPIx_SOURCE;
+		conn->miso_pin.SPIx_AF = pin_miso->SPIx_AF;
 
-		conn->mosi_pin.SPIx_PIN = MOSI_PIN;
-		conn->mosi_pin.SPIx_GPIO_PORT = MOSI_GPIO_PORT;
-		conn->mosi_pin.SPIx_GPIO_CLK = MOSI_GPIO_CLK;
-		conn->mosi_pin.SPIx_SOURCE = MOSI_SOURCE;
-		conn->mosi_pin.SPIx_AF = MOSI_AF;
+		conn->mosi_pin.SPIx_PIN = pin_mosi->SPIx_PIN;
+		conn->mosi_pin.SPIx_GPIO_PORT = pin_mosi->SPIx_GPIO_PORT;
+		conn->mosi_pin.SPIx_GPIO_CLK = pin_mosi->SPIx_GPIO_CLK;
+		conn->mosi_pin.SPIx_SOURCE = pin_mosi->SPIx_SOURCE;
+		conn->mosi_pin.SPIx_AF = pin_mosi->SPIx_AF;
 
-		conn->cs_pin.SPIx_PIN = CS_PIN;
-		conn->cs_pin.SPIx_GPIO_PORT = CS_GPIO_PORT;
-		conn->cs_pin.SPIx_GPIO_CLK = CS_GPIO_CLK;
+		conn->cs_pin.SPIx_PIN = pin_cs->SPIx_PIN;
+		conn->cs_pin.SPIx_GPIO_PORT = pin_cs->SPIx_GPIO_PORT;
+		conn->cs_pin.SPIx_GPIO_CLK = pin_cs->SPIx_GPIO_CLK;
 
 		conn->init_status = STRUCT_INITIALIZED;
 	}
 	return NO_ERROR;
 }
 
-l3g4200d_error l3g4200dInitPeriph(l3g4200d_connectivity_conf *conn)
+gyro_error l3g4200dInitPeriph(l3g4200d_connectivity_conf *conn)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 	SPI_InitTypeDef  SPI_InitStructure;
@@ -152,27 +154,24 @@ l3g4200d_error l3g4200dInitPeriph(l3g4200d_connectivity_conf *conn)
 	}
 }
 
-l3g4200d_error l3g4200dInit(l3g4200d_conf *conf,
-SPI_TypeDef *SPIx, uint32_t SPIx_CLK,
-uint16_t SCK_PIN, GPIO_TypeDef *SCK_GPIO_PORT, uint32_t SCK_GPIO_CLK, uint8_t SCK_SOURCE, uint8_t SCK_AF,
-uint16_t MISO_PIN, GPIO_TypeDef *MISO_GPIO_PORT, uint32_t MISO_GPIO_CLK, uint8_t MISO_SOURCE, uint8_t MISO_AF,
-uint16_t MOSI_PIN, GPIO_TypeDef *MOSI_GPIO_PORT, uint32_t MOSI_GPIO_CLK, uint8_t MOSI_SOURCE, uint8_t MOSI_AF,
-uint16_t CS_PIN, GPIO_TypeDef *CS_GPIO_PORT, uint32_t CS_GPIO_CLK)
+gyro_error l3g4200dInit(l3g4200d_conf *conf,
+			SPI_TypeDef *SPIx, uint32_t SPIx_CLK,
+			SPI_PIN_conf *pin_sck,
+			SPI_PIN_conf *pin_mosi,
+			SPI_PIN_conf *pin_miso,
+			SPI_PIN_conf *pin_cs)
 {
 	if (conf == NULL) {
 		return ERROR_NULL_POINTER;
 	} else {
 		l3g4200dInitConnectivity(&(conf->connectivity), SPIx, SPIx_CLK,
-			SCK_PIN, SCK_GPIO_PORT, SCK_GPIO_CLK, SCK_SOURCE, SCK_AF,
-			MISO_PIN, MISO_GPIO_PORT, MISO_GPIO_CLK, MISO_SOURCE, MISO_AF,
-			MOSI_PIN, MOSI_GPIO_PORT, MOSI_GPIO_CLK, MOSI_SOURCE, MOSI_AF,
-			CS_PIN, CS_GPIO_PORT, CS_GPIO_CLK);
+					 pin_sck, pin_mosi, pin_miso, pin_cs);
 		l3g4200dInitPeriph(&(conf->connectivity));
 	}
 	return NO_ERROR;
 }
 
-l3g4200d_error l3g4200dCsLow(l3g4200d_connectivity_conf *conn)
+gyro_error l3g4200dCsLow(l3g4200d_connectivity_conf *conn)
 {
 	if(conn == NULL) {
 		return ERROR_NULL_POINTER;
@@ -185,7 +184,7 @@ l3g4200d_error l3g4200dCsLow(l3g4200d_connectivity_conf *conn)
 	}
 }
 
-l3g4200d_error l3g4200dCsHigh(l3g4200d_connectivity_conf *conn)
+gyro_error l3g4200dCsHigh(l3g4200d_connectivity_conf *conn)
 {
 	if(conn == NULL) {
 		return ERROR_NULL_POINTER;
@@ -221,7 +220,7 @@ uint8_t l3g4200dSendByte(l3g4200d_connectivity_conf *conn, uint8_t msg)
 	}
 }
 
-l3g4200d_error l3g4200dRead(uint8_t *buffer, uint8_t addr,
+gyro_error l3g4200dRead(uint8_t *buffer, uint8_t addr,
 			     uint16_t bytes_to_read, l3g4200d_conf *conf)
 {
 	uint8_t address = 0;	
@@ -261,7 +260,7 @@ read_err:
 	return ret_err;
 }
 
-l3g4200d_error l3g4200dWrite(uint8_t *buffer, uint8_t addr,
+gyro_error l3g4200dWrite(uint8_t *buffer, uint8_t addr,
 			     uint16_t bytes_to_write, l3g4200d_conf *conf)
 {
 	uint8_t address = 0;	

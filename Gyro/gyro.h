@@ -1,15 +1,14 @@
-
-/* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __GYRO_H
 #define __GYRO_H
 
-/* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
 #include "stm32f4xx_conf.h"
+#include "gyro_error.h"
+#include "L3G4200D/L3G4200D.h"
 
-/* Exported types ------------------------------------------------------------*/
-/* Exported constants --------------------------------------------------------*/
-/* Exported macro ------------------------------------------------------------*/
-/* Exported functions ------------------------------------------------------- */
+typedef struct
+{
+	l3g4200d_conf gyroscope;
+} gyro_data_t;
 
-#endif /* __GYRO_H */
+#endif
