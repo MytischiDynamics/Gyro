@@ -1,10 +1,10 @@
 #include "gyro.h"
 
-gyro_data g_gyro;
+gyro_data_t g_gyro;
 
-gyro_error FillGlobalData(gyro_data *g_data)
+gyro_error FillGlobalData(gyro_data_t *g_data)
 {
-	gyro error err;
+	gyro_error err;
 	SPI_PIN_conf sck_pin;
 	SPI_PIN_conf miso_pin;
 	SPI_PIN_conf mosi_pin;

@@ -1881,9 +1881,6 @@
     <file>
       <name>$PROJ_DIR$\L3G4200D\L3G4200D.c</name>
     </file>
-    <file>
-      <name>$PROJ_DIR$\L3G4200D\L3G4200D.h</name>
-    </file>
   </group>
   <group>
     <name>Startup</name>

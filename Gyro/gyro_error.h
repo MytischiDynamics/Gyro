@@ -1,3 +1,6 @@
+#ifndef __GYRO_ERROR_H
+#define __GYRO_ERROR_H
+
 typedef enum {
 	NO_ERROR = 0,
 	ERROR_NULL_POINTER,
@@ -8,3 +11,5 @@ typedef enum {
 
 	EROR_LAST_ERROR
 } gyro_error;
+
+#endif

@@ -48,7 +48,7 @@ l3g4200d_init_status l3g4200dIsInitialized(l3g4200d_conf *conf)
 	}
 }
 
-l3g4200d_error l3g4200dInitConnectivity(l3g4200d_connectivity_conf *conn,
+gyro_error l3g4200dInitConnectivity(l3g4200d_connectivity_conf *conn,
 					SPI_TypeDef *SPIx, uint32_t SPIx_CLK,
 					SPI_PIN_conf *pin_sck,
 					SPI_PIN_conf *pin_mosi,
@@ -56,13 +56,13 @@ l3g4200d_error l3g4200dInitConnectivity(l3g4200d_connectivity_conf *conn,
 					SPI_PIN_conf *pin_cs)
 {
 	if (conn == NULL || SPIx == NULL || pin_sck == NULL ||
-	    pin_mosi == NULL || pin_miso == NULL || pin_sc == NULL) {
+	    pin_mosi == NULL || pin_miso == NULL || pin_cs == NULL) {
 		return ERROR_NULL_POINTER;
 	} else {
 		conn->active_bus = ACTIVE_SPI;
 		
-		conn->SPIx = conn_val->SPIx;
-		conn->SPIx_CLK = conn_val->SPIx_CLK;
+		conn->SPIx = SPIx;
+		conn->SPIx_CLK = SPIx_CLK;
 
 		conn->sck_pin.SPIx_PIN = pin_sck->SPIx_PIN;
 		conn->sck_pin.SPIx_GPIO_PORT = pin_sck->SPIx_GPIO_PORT;
@@ -224,7 +224,7 @@ gyro_error l3g4200dRead(uint8_t *buffer, uint8_t addr,
 			     uint16_t bytes_to_read, l3g4200d_conf *conf)
 {
 	uint8_t address = 0;	
-	l3g4200d_error ret_err = NO_ERROR;
+	gyro_error ret_err = NO_ERROR;
 
 	if (buffer == NULL || conf == NULL) {
 		return ERROR_NULL_POINTER;
@@ -264,7 +264,7 @@ gyro_error l3g4200dWrite(uint8_t *buffer, uint8_t addr,
 			     uint16_t bytes_to_write, l3g4200d_conf *conf)
 {
 	uint8_t address = 0;	
-	l3g4200d_error ret_err = NO_ERROR;
+	gyro_error ret_err = NO_ERROR;
 
 	if (buffer == NULL || conf == NULL) {
 		return ERROR_NULL_POINTER;
