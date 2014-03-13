@@ -32,7 +32,7 @@ gyro_error FillGlobalData(gyro_data_t *g_data)
 	sck_pin.SPIx_GPIO_PORT = GPIOB;
 	sck_pin.SPIx_GPIO_CLK = RCC_AHB1Periph_GPIOB;
 	
-	err = l3g4200dInit(&(g_data->gyroscope.connectivity),
+	err = l3g4200dInit(&(g_data->gyroscope),
 			   SPI2, RCC_APB1Periph_SPI2,
 			   &sck_pin, &mosi_pin, &miso_pin, &cs_pin);
 	if (err != NO_ERROR) {
