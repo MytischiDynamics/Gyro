@@ -63,6 +63,36 @@ typedef enum {
 	ODR_800Hz_BW_110	= 0x0F
 } l3g4200d_output_data_rate;
 
+typedef enum {
+  X_ENABLE	= 0x04,
+  X_DISABLE	= 0x00,
+  Y_ENABLE	= 0x02,
+  Y_DISABLE	= 0x00,
+  Z_ENABLE	= 0x01,
+  Z_DISABLE	= 0x00    
+} l3g4200d_axis_state;
+
+typedef enum {
+  FULLSCALE_250		= 0x00,
+  FULLSCALE_500		= 0x01,
+  FULLSCALE_2000	= 0x02
+} l3g4200d_fullscale_state;
+
+typedef enum {
+  POWER_DOWN	= 0x00,
+  SLEEP		= 0x01,
+  NORMAL	= 0x02
+} l3g4200d_mode;
+
+typedef enum {
+  FIFO_DISABLE			= 0x05,
+  FIFO_BYPASS_MODE		= 0x00,
+  FIFO_MODE			= 0x01,
+  FIFO_STREAM_MODE		= 0x02,
+  FIFO_STREAM_TO_FIFO_MODE	= 0x03,
+  FIFO_BYPASS_TO_STREAM_MODE	= 0x04    
+} l3g4200f_fifo_mode;
+
 typedef struct {
 	uint16_t SPIx_PIN;
 	GPIO_TypeDef *SPIx_GPIO_PORT;
@@ -85,11 +115,18 @@ typedef struct {
 } l3g4200d_connectivity_conf;
 
 typedef struct {
+	l3g4200d_output_data_rate ODR;
+	l3g4200d_axis_state axis_state;
+	l3g4200d_fullscale_state fullscale_state;
+	l3g4200d_mode mode;
+	l3g4200f_fifo_mode fifo_mode;
+} l3g4200d_settings;
+
+typedef struct {
 	l3g4200d_init_status init_status;
 	char device_id;
 	l3g4200d_connectivity_conf connectivity;
-	l3g4200d_output_data_rate data_rate;
-	
+	l3g4200d_settings settings;
 } l3g4200d_conf;
 
 uint32_t l3g4200dTimeoutCallback();

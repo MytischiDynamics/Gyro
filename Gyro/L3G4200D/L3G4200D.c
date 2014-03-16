@@ -154,6 +154,20 @@ gyro_error l3g4200dInitPeriph(l3g4200d_connectivity_conf *conn)
 	}
 }
 
+gyro_error l3g4200dInitDefaultSettings(l3g4200d_settings *set)
+{
+	if (set == NULL) {
+		return ERROR_NULL_POINTER;
+	}
+
+	set->ODR = ODR_100Hz_BW_12_5;
+	set->axis_state = (l3g4200d_axis_state)(X_ENABLE | Y_ENABLE | Z_ENABLE);
+	set->fullscale_state = FULLSCALE_250;
+	set->mode = NORMAL;
+	set->fifo_mode = FIFO_MODE;
+	return NO_ERROR;
+}
+
 gyro_error l3g4200dInit(l3g4200d_conf *conf,
 			SPI_TypeDef *SPIx, uint32_t SPIx_CLK,
 			SPI_PIN_conf *pin_sck,
@@ -161,14 +175,24 @@ gyro_error l3g4200dInit(l3g4200d_conf *conf,
 			SPI_PIN_conf *pin_miso,
 			SPI_PIN_conf *pin_cs)
 {
-	if (conf == NULL) {
-		return ERROR_NULL_POINTER;
-	} else {
-		l3g4200dInitConnectivity(&(conf->connectivity), SPIx, SPIx_CLK,
-					 pin_sck, pin_mosi, pin_miso, pin_cs);
-		l3g4200dInitPeriph(&(conf->connectivity));
+	gyro_error err;
+	if (conf == NULL || pin_sck == NULL || pin_mosi == NULL ||
+	    pin_miso == NULL || pin_cs == NULL) {
+		err = ERROR_NULL_POINTER;
+		goto err_occured;
 	}
-	return NO_ERROR;
+	if ((err = l3g4200dInitConnectivity(&(conf->connectivity), SPIx,
+	SPIx_CLK, pin_sck, pin_mosi, pin_miso, pin_cs)) != NO_ERROR) {
+		goto err_occured;
+	}
+	if ((err = l3g4200dInitPeriph(&(conf->connectivity))) != NO_ERROR) {
+		goto err_occured;
+	}
+	if ((err = l3g4200dInitDefaultSettings(&(conf->settings))) != NO_ERROR) {
+		goto err_occured;
+	}
+err_occured:
+	return err;
 }
 
 gyro_error l3g4200dCsLow(l3g4200d_connectivity_conf *conn)
