@@ -17,13 +17,13 @@ gyro_error l3g4200dSetActiveBus(l3g4200d_active_bus bus,
 	}
 }
 
-gyro_error l3g4200dGetActiveBus(l3g4200d_conf *conf,
+gyro_error l3g4200dGetActiveBus(l3g4200d_connectivity_conf *conn,
 					l3g4200d_active_bus *bus)
 {
-	if(conf == NULL || bus == NULL) {
+	if(conn == NULL || bus == NULL) {
 		return ERROR_NULL_POINTER;
 	} else {
-		*bus = conf->connectivity.active_bus;
+		*bus = conn->active_bus;
 		return NO_ERROR;
 	}
 }
@@ -155,7 +155,7 @@ gyro_error l3g4200dCheckDeviceID(l3g4200d_conf *conf)
 		err = ERROR_DEVICE_NOT_INITIALIZED;
 		goto err_occured;
 	}
-	if ((err = l3g4200dRead(&id, WHO_AM_I, 1, conf)) != NO_ERROR) {
+	if ((err = l3g4200dRead((uint8_t*)&id, WHO_AM_I, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
 	conf->device_id = id.ID;
@@ -188,11 +188,11 @@ gyro_error l3g4200dSetODR(l3g4200d_conf *conf, l3g4200d_output_data_rate ODR)
 	if ((err = l3g4200dIsODRInRange(ODR)) != NO_ERROR) {
 		goto err_occured;
 	}
-	if ((err = l3g4200dRead(&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
+	if ((err = l3g4200dRead((uint8_t*)&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
 	value.DR_BW = ODR;
-	if ((err = l3g4200dWrite(&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
+	if ((err = l3g4200dWrite((uint8_t*)&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
 err_occured:
@@ -219,12 +219,15 @@ gyro_error l3g4200dSetAxis(l3g4200d_conf *conf, axis_enable axis_state)
 	if ((err = l3g4200dIsAxisStateInRange(axis_state)) != NO_ERROR) {
 		goto err_occured;
 	}
-	if ((err = l3g4200dRead(&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
+	if ((err = l3g4200dRead((uint8_t*)&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
-	value &= 0xf8;
-	value |= axis_state;
-	if ((err = l3g4200dWrite(&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
+
+	value.Xen = axis_state & (0x01 << 2);
+	value.Yen = axis_state & (0x01 << 1);
+	value.Xen = axis_state & (0x01);
+
+	if ((err = l3g4200dWrite((uint8_t*)&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
 err_occured:
