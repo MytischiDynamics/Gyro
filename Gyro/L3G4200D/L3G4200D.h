@@ -36,6 +36,8 @@
 #define DEFAULT_DEVICE_ID 0xD3
 #define L3G4200D_TIMEOUT_COUNTER ((uint32_t)0x1000)
 
+typedef uint8_t axis_enable;
+
 typedef enum {
 	ACTIVE_SPI = 0,
 	ACTIVE_I2C = 1
@@ -64,34 +66,148 @@ typedef enum {
 } l3g4200d_output_data_rate;
 
 typedef enum {
-  X_ENABLE	= 0x04,
-  X_DISABLE	= 0x00,
-  Y_ENABLE	= 0x02,
-  Y_DISABLE	= 0x00,
-  Z_ENABLE	= 0x01,
-  Z_DISABLE	= 0x00    
+	X_ENABLE	= 0x04,
+	X_DISABLE	= 0x00,
+	Y_ENABLE	= 0x02,
+	Y_DISABLE	= 0x00,
+	Z_ENABLE	= 0x01,
+	Z_DISABLE	= 0x00
 } l3g4200d_axis_state;
 
 typedef enum {
-  FULLSCALE_250		= 0x00,
-  FULLSCALE_500		= 0x01,
-  FULLSCALE_2000	= 0x02
+	FULLSCALE_250	= 0x00,
+	FULLSCALE_500	= 0x01,
+	FULLSCALE_2000	= 0x02
 } l3g4200d_fullscale_state;
 
 typedef enum {
-  POWER_DOWN	= 0x00,
-  SLEEP		= 0x01,
-  NORMAL	= 0x02
+	POWER_DOWN	= 0x00,
+	SLEEP		= 0x01,
+	NORMAL	= 0x02
 } l3g4200d_mode;
 
 typedef enum {
-  FIFO_DISABLE			= 0x05,
-  FIFO_BYPASS_MODE		= 0x00,
-  FIFO_MODE			= 0x01,
-  FIFO_STREAM_MODE		= 0x02,
-  FIFO_STREAM_TO_FIFO_MODE	= 0x03,
-  FIFO_BYPASS_TO_STREAM_MODE	= 0x04    
+	FIFO_DISABLE			= 0x05,
+	FIFO_BYPASS_MODE		= 0x00,
+	FIFO_MODE			= 0x01,
+	FIFO_STREAM_MODE		= 0x02,
+	FIFO_STREAM_TO_FIFO_MODE	= 0x03,
+	FIFO_BYPASS_TO_STREAM_MODE	= 0x04
 } l3g4200f_fifo_mode;
+
+typedef struct {
+	uint8_t ID;
+} l3g4200d_WHO_AM_I;
+
+typedef struct {
+	uint8_t DR_BW	: 4;
+	uint8_t PD	: 1;
+	uint8_t Zen	: 1;
+	uint8_t Yen	: 1;
+	uint8_t Xen	: 1;
+} l3g4200d_CTRL_REG1;
+
+typedef struct {
+	uint8_t		: 2;
+	uint8_t HPM	: 2;
+	uint8_t HPCF	: 4;
+} l3g4200d_CTRL_REG2;
+
+typedef struct {
+	uint8_t I1_Int1		: 1;
+	uint8_t I1_Boot		: 1;
+	uint8_t H_Lactive	: 1;
+	uint8_t PP_OD		: 1;
+	uint8_t I2_DRDY		: 1;
+	uint8_t I2_WTM		: 1;
+	uint8_t I2_ORun		: 1;
+	uint8_t I2_Empty	: 1;
+} l3g4200d_CTRL_REG3;
+
+typedef struct {
+	uint8_t BDU	: 1;
+	uint8_t BLE	: 1;
+	uint8_t FS	: 2;
+	uint8_t		: 1;
+	uint8_t ST	: 2;
+	uint8_t SIM	: 1;
+} l3g4200d_CTRL_REG4;
+
+typedef struct {
+	uint8_t	BOOT		: 1;
+	uint8_t FIFO_EN		: 1;
+	uint8_t 		: 1;
+	uint8_t HPen		: 1;
+	uint8_t Int1_Sel	: 2;
+	uint8_t Out_Sel		: 2;
+} l3g4200d_CTRL_REG5;
+
+typedef struct {
+	uint8_t	ref;
+} l3g4200d_REFERENCE;
+
+typedef struct {
+	uint8_t	Temp;
+} l3g4200d_OUT_TEMP;
+
+typedef struct {
+	uint8_t	ZYXOR	: 1;
+	uint8_t ZOR	: 1;
+	uint8_t YOR	: 1;
+	uint8_t XOR	: 1;
+	uint8_t ZYXDA	: 1;
+	uint8_t ZDA	: 1;
+	uint8_t YDA	: 1;
+	uint8_t XDA	: 1;
+} l3g4200d_STATUS_REG;
+
+typedef struct {
+	uint8_t	border;
+} l3g4200d_out_axis_border;
+
+typedef struct {
+	uint8_t	FM	: 3;
+	uint8_t WTM	: 5;
+} l3g4200d_FIFO_CTRL_REG;
+
+typedef struct {
+	uint8_t	WTM	: 1;
+	uint8_t OVRN	: 1;
+	uint8_t EMPTY	: 1;
+	uint8_t FSS	: 5;
+} l3g4200d_FIFO_SRC_REG;
+
+typedef struct {
+	uint8_t	AND_OR	: 1;
+	uint8_t LIR	: 1;
+	uint8_t ZHIE	: 1;
+	uint8_t ZLIE	: 1;
+	uint8_t YHIE	: 1;
+	uint8_t YLIE	: 1;
+	uint8_t XHIE	: 1;
+	uint8_t XLIE	: 1;
+} l3g4200d_INT1_CFG;
+
+typedef struct {
+	uint8_t 	: 1;
+	uint8_t IA	: 1;
+	uint8_t ZH	: 1;
+	uint8_t ZL	: 1;
+	uint8_t YH	: 1;
+	uint8_t YL	: 1;
+	uint8_t XH	: 1;
+	uint8_t XL	: 1;
+} l3g4200d_INT1_SRC;
+
+typedef struct {
+	uint16_t 	: 1;
+	uint16_t level	: 15;
+} l3g4200d_Int_Threshold_Level;
+
+typedef struct {
+	uint8_t WAIT		: 1;
+	uint8_t Duration	: 7;
+} l3g4200d_INT1_DURATION;
 
 typedef struct {
 	uint16_t SPIx_PIN;
@@ -113,7 +229,7 @@ typedef struct {
 	
 	l3g4200d_init_status init_status;
 } l3g4200d_connectivity_conf;
-
+/*
 typedef struct {
 	l3g4200d_output_data_rate ODR;
 	l3g4200d_axis_state axis_state;
@@ -121,12 +237,12 @@ typedef struct {
 	l3g4200d_mode mode;
 	l3g4200f_fifo_mode fifo_mode;
 } l3g4200d_settings;
-
+*/
 typedef struct {
 	l3g4200d_init_status init_status;
-	char device_id;
+	uint8_t device_id;
 	l3g4200d_connectivity_conf connectivity;
-	l3g4200d_settings settings;
+//	l3g4200d_settings settings;
 } l3g4200d_conf;
 
 uint32_t l3g4200dTimeoutCallback();

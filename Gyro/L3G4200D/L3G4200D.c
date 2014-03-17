@@ -5,36 +5,25 @@
 #define DUMMY_BYTE			((uint8_t)0x00)
 
 gyro_error l3g4200dSetActiveBus(l3g4200d_active_bus bus,
-					l3g4200d_conf *conf)
+					l3g4200d_connectivity_conf *conn)
 {
-	if(conf == NULL) {
+	if(conn == NULL) {
 		return ERROR_NULL_POINTER;
 	} else if(bus > ACTIVE_I2C/* || bus < ACTIVE_SPI*/) {
 		return ERROR_VALUE_NOT_IN_RANGE;
 	} else {
-		conf->connectivity.active_bus = bus;
+		conn->active_bus = bus;
 		return NO_ERROR;
 	}
 }
 
-gyro_error l3g4200dGetActiveBus(l3g4200d_conf *conf,
+gyro_error l3g4200dGetActiveBus(l3g4200d_conf *conn,
 					l3g4200d_active_bus *bus)
 {
 	if(conf == NULL || bus == NULL) {
 		return ERROR_NULL_POINTER;
 	} else {
-		*bus = conf->connectivity.active_bus;
-		return NO_ERROR;
-	}
-}
-
-gyro_error l3g4200dCheckDeviceId(l3g4200d_conf *conf)
-{
-	if (conf == NULL) {
-		return ERROR_NULL_POINTER;
-	} else if (conf->device_id != DEFAULT_DEVICE_ID) {
-		return ERROR_DEVICE_ID_NOT_VALID;
-	} else {
+		*bus = conn->active_bus;
 		return NO_ERROR;
 	}
 }
@@ -154,18 +143,117 @@ gyro_error l3g4200dInitPeriph(l3g4200d_connectivity_conf *conn)
 	}
 }
 
-gyro_error l3g4200dInitDefaultSettings(l3g4200d_settings *set)
+gyro_error l3g4200dCheckDeviceID(l3g4200d_conf *conf)
 {
-	if (set == NULL) {
+	l3g4200d_WHO_AM_I id;
+	gyro_error err = NO_ERROR;
+	if (conf == NULL) {
+		err = ERROR_NULL_POINTER;
+		goto err_occured;
+	}
+	if (l3g4200dIsInitialized(conf) != STRUCT_INITIALIZED) {
+		err = ERROR_DEVICE_NOT_INITIALIZED;
+		goto err_occured;
+	}
+	if ((err = l3g4200dRead(&id, WHO_AM_I, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+	conf->device_id = id.ID;
+	if (conf->device_id != DEFAULT_DEVICE_ID) {
+		err = ERROR_DEVICE_ID_NOT_VALID;
+		goto err_occured;
+	}
+err_occured:
+	return err;
+}
+
+gyro_error l3g4200dIsODRInRange(l3g4200d_output_data_rate ODR)
+{
+	if (((ODR >= ODR_200Hz_BW_12_5)&&(ODR <= ODR_800Hz_BW_110)) ||
+	   (ODR == ODR_100Hz_BW_25) || (ODR == ODR_100Hz_BW_12_5)) {
+		return NO_ERROR;
+	} else {
+		return ERROR_VALUE_NOT_IN_RANGE;
+	}
+}
+
+gyro_error l3g4200dSetODR(l3g4200d_conf *conf, l3g4200d_output_data_rate ODR)
+{
+	gyro_error err;
+	l3g4200d_CTRL_REG1 value;
+	if (conf == NULL) {
+		err = ERROR_NULL_POINTER;
+		goto err_occured;
+	}
+	if ((err = l3g4200dIsODRInRange(ODR)) != NO_ERROR) {
+		goto err_occured;
+	}
+	if ((err = l3g4200dRead(&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+	value.DR_BW = ODR;
+	if ((err = l3g4200dWrite(&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+err_occured:
+	return err;
+}
+
+gyro_error l3g4200dIsAxisStateInRange(axis_enable val)
+{
+	if (val >= 7) {
+		return ERROR_VALUE_NOT_IN_RANGE;
+	} else {
+		return NO_ERROR;
+	}
+}
+
+gyro_error l3g4200dSetAxis(l3g4200d_conf *conf, axis_enable axis_state)
+{
+	gyro_error err;
+	l3g4200d_CTRL_REG1 value;
+	if (conf == NULL) {
+		err = ERROR_NULL_POINTER;
+		goto err_occured;
+	}
+	if ((err = l3g4200dIsAxisStateInRange(axis_state)) != NO_ERROR) {
+		goto err_occured;
+	}
+	if ((err = l3g4200dRead(&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+	value &= 0xf8;
+	value |= axis_state;
+	if ((err = l3g4200dWrite(&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+err_occured:
+	return err;
+}
+
+gyro_error l3g4200dInitDefaultSettings(l3g4200d_conf *conf)
+{
+	gyro_error err = NO_ERROR;
+	if (conf == NULL) {
 		return ERROR_NULL_POINTER;
 	}
-
-	set->ODR = ODR_100Hz_BW_12_5;
+	if ((err = l3g4200dCheckDeviceID(conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+	if ((err = l3g4200dSetODR(conf, ODR_100Hz_BW_12_5)) != NO_ERROR) {
+		goto err_occured;
+	}
+	if ((err = l3g4200dSetAxis(conf, X_ENABLE | Y_ENEABLE | Z_ENABLE)) != NO_ERROR) {
+		goto err_occured;
+	}
+/*	set->ODR = ODR_100Hz_BW_12_5;
 	set->axis_state = (l3g4200d_axis_state)(X_ENABLE | Y_ENABLE | Z_ENABLE);
 	set->fullscale_state = FULLSCALE_250;
 	set->mode = NORMAL;
 	set->fifo_mode = FIFO_MODE;
-	return NO_ERROR;
+*/
+err_occured:
+	return err;
 }
 
 gyro_error l3g4200dInit(l3g4200d_conf *conf,
@@ -186,6 +274,9 @@ gyro_error l3g4200dInit(l3g4200d_conf *conf,
 		goto err_occured;
 	}
 	if ((err = l3g4200dInitPeriph(&(conf->connectivity))) != NO_ERROR) {
+		goto err_occured;
+	}
+	if ((err = l3g4200dCheckDeviceID(conf)) != NO_ERROR) {
 		goto err_occured;
 	}
 	if ((err = l3g4200dInitDefaultSettings(&(conf->settings))) != NO_ERROR) {
