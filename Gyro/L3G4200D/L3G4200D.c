@@ -17,13 +17,13 @@ gyro_error l3g4200dSetActiveBus(l3g4200d_active_bus bus,
 	}
 }
 
-gyro_error l3g4200dGetActiveBus(l3g4200d_conf *conn,
+gyro_error l3g4200dGetActiveBus(l3g4200d_conf *conf,
 					l3g4200d_active_bus *bus)
 {
 	if(conf == NULL || bus == NULL) {
 		return ERROR_NULL_POINTER;
 	} else {
-		*bus = conn->active_bus;
+		*bus = conf->connectivity.active_bus;
 		return NO_ERROR;
 	}
 }
@@ -243,7 +243,7 @@ gyro_error l3g4200dInitDefaultSettings(l3g4200d_conf *conf)
 	if ((err = l3g4200dSetODR(conf, ODR_100Hz_BW_12_5)) != NO_ERROR) {
 		goto err_occured;
 	}
-	if ((err = l3g4200dSetAxis(conf, X_ENABLE | Y_ENEABLE | Z_ENABLE)) != NO_ERROR) {
+	if ((err = l3g4200dSetAxis(conf, X_ENABLE | Y_ENABLE | Z_ENABLE)) != NO_ERROR) {
 		goto err_occured;
 	}
 /*	set->ODR = ODR_100Hz_BW_12_5;
@@ -279,7 +279,7 @@ gyro_error l3g4200dInit(l3g4200d_conf *conf,
 	if ((err = l3g4200dCheckDeviceID(conf)) != NO_ERROR) {
 		goto err_occured;
 	}
-	if ((err = l3g4200dInitDefaultSettings(&(conf->settings))) != NO_ERROR) {
+	if ((err = l3g4200dInitDefaultSettings(/*&(conf->settings)*/conf)) != NO_ERROR) {
 		goto err_occured;
 	}
 err_occured:

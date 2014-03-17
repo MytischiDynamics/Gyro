@@ -83,7 +83,7 @@ typedef enum {
 typedef enum {
 	POWER_DOWN	= 0x00,
 	SLEEP		= 0x01,
-	NORMAL	= 0x02
+	NORMAL	        = 0x02
 } l3g4200d_mode;
 
 typedef enum {
@@ -249,5 +249,11 @@ uint32_t l3g4200dTimeoutCallback();
 gyro_error l3g4200dInit(l3g4200d_conf*, SPI_TypeDef*, uint32_t,
 			SPI_PIN_conf*, SPI_PIN_conf*,
 			SPI_PIN_conf*, SPI_PIN_conf*);
+
+gyro_error l3g4200dRead(uint8_t *buffer, uint8_t addr,
+			     uint16_t bytes_to_read, l3g4200d_conf *conf);
+
+gyro_error l3g4200dWrite(uint8_t *buffer, uint8_t addr,
+			     uint16_t bytes_to_write, l3g4200d_conf *conf);
 
 #endif
