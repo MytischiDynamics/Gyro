@@ -267,7 +267,7 @@ err_occured:
 
 static gyro_error l3g4200dIsModeInRange(l3g4200d_mode mode)
 {
-	if ((mode > NORMAL) || mode < POWER_DOWN)) {
+	if ((mode > NORMAL) || (mode < POWER_DOWN)) {
 		return ERROR_VALUE_NOT_IN_RANGE;
 	} else {
 		return NO_ERROR;
@@ -312,16 +312,16 @@ err_occured:
 	return err;
 }
 
-static gyro_err l3g4200dIsFIFOModeInRange(l3g4200f_fifo_mode fifo_mode)
+static gyro_error l3g4200dIsFIFOModeInRange(l3g4200f_fifo_mode fifo_mode)
 {
-	if ((mode > FIFO_DISABLE) || mode < FIFO_BYPASS_MODE)) {
+	if ((fifo_mode > FIFO_DISABLE) || (fifo_mode < FIFO_BYPASS_MODE)) {
 		return ERROR_VALUE_NOT_IN_RANGE;
 	} else {
 		return NO_ERROR;
 	}
 }
 
-gyro_error l3g4200dSetFIFOMode(conf, l3g4200f_fifo_mode fifo_mode)
+gyro_error l3g4200dSetFIFOMode(l3g4200d_conf *conf, l3g4200f_fifo_mode fifo_mode)
 {
 	gyro_error err;
 	l3g4200d_CTRL_REG5 val_reg5;
