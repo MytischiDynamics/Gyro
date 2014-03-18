@@ -167,7 +167,7 @@ err_occured:
 	return err;
 }
 
-gyro_error l3g4200dIsODRInRange(l3g4200d_output_data_rate ODR)
+static gyro_error l3g4200dIsODRInRange(l3g4200d_output_data_rate ODR)
 {
 	if (((ODR >= ODR_200Hz_BW_12_5)&&(ODR <= ODR_800Hz_BW_110)) ||
 	   (ODR == ODR_100Hz_BW_25) || (ODR == ODR_100Hz_BW_12_5)) {
@@ -199,7 +199,7 @@ err_occured:
 	return err;
 }
 
-gyro_error l3g4200dIsAxisStateInRange(axis_enable val)
+static gyro_error l3g4200dIsAxisStateInRange(axis_enable val)
 {
 	if (val >= 7) {
 		return ERROR_VALUE_NOT_IN_RANGE;
@@ -234,6 +234,162 @@ err_occured:
 	return err;
 }
 
+static gyro_error l3g4200dIsFullscaleStateInRange(l3g4200d_fullscale_state st)
+{
+	if ((st > FULLSCALE_2000) || (st < FULLSCALE_250)) {
+		return ERROR_VALUE_NOT_IN_RANGE;
+	} else {
+		return NO_ERROR;
+	}
+}
+
+gyro_error l3g4200dSetFullscale(l3g4200d_conf *conf, l3g4200d_fullscale_state st)
+{
+	gyro_error err;
+	l3g4200d_CTRL_REG4 value;
+	if (conf == NULL) {
+		err = ERROR_NULL_POINTER;
+		goto err_occured;
+	}
+	if ((err = l3g4200dIsFullscaleStateInRange(st)) != NO_ERROR) {
+		goto err_occured;
+	}
+	if ((err = l3g4200dRead((uint8_t*)&value, CTRL_REG4, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+	value.FS = st;
+	if ((err = l3g4200dWrite((uint8_t*)&value, CTRL_REG4, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+err_occured:
+	return err;
+}
+
+static gyro_error l3g4200dIsModeInRange(l3g4200d_mode mode)
+{
+	if ((mode > NORMAL) || mode < POWER_DOWN)) {
+		return ERROR_VALUE_NOT_IN_RANGE;
+	} else {
+		return NO_ERROR;
+	}
+}
+
+gyro_error l3g4200dSetMode(l3g4200d_conf *conf, l3g4200d_mode mode)
+{
+	gyro_error err;
+	l3g4200d_CTRL_REG1 value;
+	if (conf == NULL) {
+		err = ERROR_NULL_POINTER;
+		goto err_occured;
+	}
+	if ((err = l3g4200dIsModeInRange(mode)) != NO_ERROR) {
+		goto err_occured;
+	}
+	if ((err = l3g4200dRead((uint8_t*)&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+	switch (mode) {
+	case (POWER_DOWN):
+		value.PD = 0;
+		break;
+	case (SLEEP):
+		value.PD = 1;
+		value.Zen = 0;
+		value.Yen = 0;
+		value.Xen = 0;
+		break;
+	case (NORMAL):
+		value.PD = 1;
+		break;
+	default:
+		err = ERROR_VALUE_NOT_IN_RANGE;
+		goto err_occured;
+	}
+	if ((err = l3g4200dWrite((uint8_t*)&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+err_occured:
+	return err;
+}
+
+static gyro_err l3g4200dIsFIFOModeInRange(l3g4200f_fifo_mode fifo_mode)
+{
+	if ((mode > FIFO_DISABLE) || mode < FIFO_BYPASS_MODE)) {
+		return ERROR_VALUE_NOT_IN_RANGE;
+	} else {
+		return NO_ERROR;
+	}
+}
+
+gyro_error l3g4200dSetFIFOMode(conf, l3g4200f_fifo_mode fifo_mode)
+{
+	gyro_error err;
+	l3g4200d_CTRL_REG5 val_reg5;
+	l3g4200d_FIFO_CTRL_REG val_fifo_reg;
+	if (conf == NULL) {
+		err = ERROR_NULL_POINTER;
+		goto err_occured;
+	}
+	if ((err = l3g4200dIsFIFOModeInRange(fifo_mode)) != NO_ERROR) {
+		goto err_occured;
+	}
+	if ((err = l3g4200dRead((uint8_t*)&val_reg5, CTRL_REG5, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+	if (fifo_mode == FIFO_DISABLE) {
+		val_reg5.FIFO_EN = 0;
+		if ((err = l3g4200dWrite((uint8_t*)&val_reg5, CTRL_REG5, 1, conf)) != NO_ERROR) {
+			goto err_occured;
+		}
+	} else {
+		val_reg5.FIFO_EN = 0;
+		if ((err = l3g4200dWrite((uint8_t*)&val_reg5, CTRL_REG5, 1, conf)) != NO_ERROR) {
+			goto err_occured;
+		}
+		if ((err = l3g4200dRead((uint8_t*)&val_fifo_reg, FIFO_CTRL_REG, 1, conf)) != NO_ERROR) {
+			goto err_occured;
+		}
+		val_fifo_reg.FM = fifo_mode;
+		if ((err = l3g4200dWrite((uint8_t*)&val_fifo_reg, FIFO_CTRL_REG, 1, conf)) != NO_ERROR) {
+			goto err_occured;
+		}
+	}
+err_occured:
+	return err;
+}
+
+static gyro_error l3g4200dIsWatermarkInRange(uint8_t wm)
+{
+	if (wm > L3G4200D_MAX_FIFO_INDEX) {
+		return ERROR_VALUE_NOT_IN_RANGE;
+	} else {
+		return NO_ERROR;
+	}
+}
+
+gyro_error l3g4200dSetWatermark(l3g4200d_conf *conf, uint8_t wm)
+{
+	gyro_error err;
+	l3g4200d_FIFO_CTRL_REG value;
+
+	if (conf == NULL) {
+		err = ERROR_NULL_POINTER;
+		goto err_occured;
+	}
+	if ((err = l3g4200dIsWatermarkInRange(wm)) != NO_ERROR) {
+		goto err_occured;
+	}
+	if ((err = l3g4200dRead((uint8_t*)&value, FIFO_CTRL_REG, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+	value.WTM = wm;
+	if ((err = l3g4200dWrite((uint8_t*)&value, FIFO_CTRL_REG, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+err_occured:
+	return err;
+}
+
 gyro_error l3g4200dInitDefaultSettings(l3g4200d_conf *conf)
 {
 	gyro_error err = NO_ERROR;
@@ -247,6 +403,18 @@ gyro_error l3g4200dInitDefaultSettings(l3g4200d_conf *conf)
 		goto err_occured;
 	}
 	if ((err = l3g4200dSetAxis(conf, X_ENABLE | Y_ENABLE | Z_ENABLE)) != NO_ERROR) {
+		goto err_occured;
+	}
+	if ((err = l3g4200dSetFullscale(conf, FULLSCALE_250)) != NO_ERROR) {
+		goto err_occured;
+	}
+	if ((err = l3g4200dSetMode(conf, NORMAL)) != NO_ERROR) {
+		goto err_occured;
+	}
+	if ((err = l3g4200dSetFIFOMode(conf, FIFO_MODE)) != NO_ERROR) {
+		goto err_occured;
+	}
+	if ((err = l3g4200dSetWatermark(conf, 5)) != NO_ERROR) {
 		goto err_occured;
 	}
 /*	set->ODR = ODR_100Hz_BW_12_5;

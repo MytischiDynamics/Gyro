@@ -35,6 +35,7 @@
 
 #define DEFAULT_DEVICE_ID 0xD3
 #define L3G4200D_TIMEOUT_COUNTER ((uint32_t)0x1000)
+#define L3G4200D_MAX_FIFO_INDEX 31
 
 typedef uint8_t axis_enable;
 
