@@ -89,7 +89,7 @@ gyro_error l3g4200dInitPeriph(l3g4200d_connectivity_conf *conn)
 	} else if(conn->init_status == STRUCT_NOT_INITIALIZED) {
 		return ERROR_DEVICE_NOT_INITIALIZED;
 	} else {
-		RCC_APB1PeriphClockCmd( conn->SPIx_CLK, ENABLE);
+		RCC_APB2PeriphClockCmd( conn->SPIx_CLK, ENABLE);
 		RCC_AHB1PeriphClockCmd( conn->cs_pin.SPIx_GPIO_CLK |
 					conn->mosi_pin.SPIx_GPIO_CLK |
 					conn->miso_pin.SPIx_GPIO_CLK |
@@ -201,7 +201,7 @@ err_occured:
 
 static gyro_error l3g4200dIsAxisStateInRange(axis_enable val)
 {
-	if (val >= 7) {
+	if (val > 7) {
 		return ERROR_VALUE_NOT_IN_RANGE;
 	} else {
 		return NO_ERROR;
@@ -236,7 +236,7 @@ err_occured:
 
 static gyro_error l3g4200dIsFullscaleStateInRange(l3g4200d_fullscale_state st)
 {
-	if ((st > FULLSCALE_2000) || (st < FULLSCALE_250)) {
+	if ((st > FULLSCALE_2000)/* || (st < FULLSCALE_250)*/) {
 		return ERROR_VALUE_NOT_IN_RANGE;
 	} else {
 		return NO_ERROR;
@@ -267,7 +267,7 @@ err_occured:
 
 static gyro_error l3g4200dIsModeInRange(l3g4200d_mode mode)
 {
-	if ((mode > NORMAL) || (mode < POWER_DOWN)) {
+	if ((mode > NORMAL)/* || (mode < POWER_DOWN)*/) {
 		return ERROR_VALUE_NOT_IN_RANGE;
 	} else {
 		return NO_ERROR;
@@ -314,7 +314,7 @@ err_occured:
 
 static gyro_error l3g4200dIsFIFOModeInRange(l3g4200f_fifo_mode fifo_mode)
 {
-	if ((fifo_mode > FIFO_DISABLE) || (fifo_mode < FIFO_BYPASS_MODE)) {
+	if ((fifo_mode > FIFO_DISABLE)/* || (fifo_mode < FIFO_BYPASS_MODE)*/) {
 		return ERROR_VALUE_NOT_IN_RANGE;
 	} else {
 		return NO_ERROR;
@@ -417,12 +417,6 @@ gyro_error l3g4200dInitDefaultSettings(l3g4200d_conf *conf)
 	if ((err = l3g4200dSetWatermark(conf, 5)) != NO_ERROR) {
 		goto err_occured;
 	}
-/*	set->ODR = ODR_100Hz_BW_12_5;
-	set->axis_state = (l3g4200d_axis_state)(X_ENABLE | Y_ENABLE | Z_ENABLE);
-	set->fullscale_state = FULLSCALE_250;
-	set->mode = NORMAL;
-	set->fifo_mode = FIFO_MODE;
-*/
 err_occured:
 	return err;
 }
@@ -447,10 +441,13 @@ gyro_error l3g4200dInit(l3g4200d_conf *conf,
 	if ((err = l3g4200dInitPeriph(&(conf->connectivity))) != NO_ERROR) {
 		goto err_occured;
 	}
+
+	conf->init_status = STRUCT_INITIALIZED;
+
 	if ((err = l3g4200dCheckDeviceID(conf)) != NO_ERROR) {
 		goto err_occured;
 	}
-	if ((err = l3g4200dInitDefaultSettings(/*&(conf->settings)*/conf)) != NO_ERROR) {
+	if ((err = l3g4200dInitDefaultSettings(conf)) != NO_ERROR) {
 		goto err_occured;
 	}
 err_occured:
