@@ -1881,6 +1881,18 @@
     <file>
       <name>$PROJ_DIR$\L3G4200D\L3G4200D.c</name>
     </file>
+    <file>
+      <name>$PROJ_DIR$\L3G4200D\L3G4200D.h</name>
+    </file>
+  </group>
+  <group>
+    <name>Servo</name>
+    <file>
+      <name>$PROJ_DIR$\Servo\servo.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\Servo\servo.h</name>
+    </file>
   </group>
   <group>
     <name>Startup</name>
@@ -1986,6 +1998,9 @@
   </group>
   <file>
     <name>$PROJ_DIR$\gyro.c</name>
+  </file>
+  <file>
+    <name>$PROJ_DIR$\gyro_error.h</name>
   </file>
   <file>
     <name>$PROJ_DIR$\stm32f4xx_it.c</name>
