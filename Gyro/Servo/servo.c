@@ -7,16 +7,6 @@
 //min control pulse width
 #define SERVO_MIN_PULSE_WIDTH_US 1000
 
-
-/*
-ServoInitConnectivity(...)
-ServoInitOptions
-ServoInitPeryph
-
-
-
-*/
-
 gyro_error ServoInitConnectivity(servo_connectivity_conf* conn,
 				 uint16_t pin,
 				 GPIO_TypeDef* port,
@@ -27,71 +17,69 @@ gyro_error ServoInitConnectivity(servo_connectivity_conf* conn,
 		err = ERROR_NULL_POINTER;
 		goto err_occured;
 	}
-	if (pin > 15) {
-		err = ERROR_VALUE_NOT_IN_RANGE;
-		goto err_occured;
-	}
 
 	conn->servo_GPIO_PORT = port;
 	conn->servo_PIN = pin;
 	conn->servo_TIM = tim;
 
-	switch(conn->servo_TIM) {
-	case (TIM2):
+	switch((uint32_t)conn->servo_TIM) {
+	case ((uint32_t)TIM2):
 		conn->timer_clock = RCC_APB1Periph_TIM2;
 		conn->gpio_af = GPIO_AF_TIM2;
 	break;
-	case (TIM3):
+	case ((uint32_t)TIM3):
 		conn->timer_clock = RCC_APB1Periph_TIM3;
 		conn->gpio_af = GPIO_AF_TIM3;
 	break;
-	case (TIM4):
+	case ((uint32_t)TIM4):
 		conn->timer_clock = RCC_APB1Periph_TIM4;
 		conn->gpio_af = GPIO_AF_TIM4;
 	break;
-	case (TIM5):
+	case ((uint32_t)TIM5):
 		conn->timer_clock = RCC_APB1Periph_TIM5;
 		conn->gpio_af = GPIO_AF_TIM5;
 	break;
-	case (TIM6):
+	case ((uint32_t)TIM6):
 		conn->timer_clock = RCC_APB1Periph_TIM6;
-		conn->gpio_af = GPIO_AF_TIM6;
+/*TODO : Find out where af of this timer*/
+//		conn->gpio_af = GPIO_AF_TIM6;
 	break;
-	case (TIM7):
+	case ((uint32_t)TIM7):
 		conn->timer_clock = RCC_APB1Periph_TIM7;
-		conn->gpio_af = GPIO_AF_TIM7;
+/*TODO : Find out where af of this timer*/
+//		conn->gpio_af = GPIO_AF_TIM7;
 	break;
 	default :
 		err = ERROR_VALUE_NOT_IN_RANGE;
 		goto err_occured;
 	}
 	
-	switch (conn->port_clock) {
-	case (GPIOA) :
+	switch ((uint32_t)conn->servo_GPIO_PORT) {
+	case ((uint32_t)GPIOA) :
 		conn->port_clock = RCC_AHB1Periph_GPIOA;
 	break;
-	case (GPIOB) :
+	case ((uint32_t)GPIOB) :
 		conn->port_clock = RCC_AHB1Periph_GPIOB;
 	break;
-	case (GPIOC) :
+	case ((uint32_t)GPIOC) :
 		conn->port_clock = RCC_AHB1Periph_GPIOC;
 	break;
-	case (GPIOD) :
+	case ((uint32_t)GPIOD) :
 		conn->port_clock = RCC_AHB1Periph_GPIOD;
 	break;
-	case (GPIOE) :
+	case ((uint32_t)GPIOE) :
 		conn->port_clock = RCC_AHB1Periph_GPIOE;
 	break;
-	case (GPIOF) :
+	case ((uint32_t)GPIOF) :
 		conn->port_clock = RCC_AHB1Periph_GPIOF;
 	break;
-	case (GPIOG) :
+	case ((uint32_t)GPIOG) :
 		conn->port_clock = RCC_AHB1Periph_GPIOG;
 	break;
-	case (GPIOH) :
+	case ((uint32_t)GPIOH) :
 		conn->port_clock = RCC_AHB1Periph_GPIOH;
 	break;
-	case (GPIOI) :
+	case ((uint32_t)GPIOI) :
 		conn->port_clock = RCC_AHB1Periph_GPIOI;
 	break;
 	default :
@@ -154,23 +142,53 @@ err_occured:
 	return err;
 }
 
-gyro_error ServoInitOptions(servo_conf* conf,
-			    uint32_t resolution)
+gyro_error ServoInitOptions(servo_conf* conf)
 {
 	gyro_error err = NO_ERROR;
-	if (conf == NULL || conf->connectivity == NULLs) {
+	if (conf == NULL) {
 		err = ERROR_NULL_POINTER;
 		goto err_occured;
 	}
-	if (resolution == 0) {
+//Make timer clock 1uS period
+	conf->connectivity.prescaler = SystemCoreClock / 1000000;	
+err_occured:
+	return err;
+}
+
+gyro_error ServoSetDefaultTiming(servo_conf* conf)
+{
+	gyro_error err = NO_ERROR;
+	if (conf == NULL) {
+		err = ERROR_NULL_POINTER;
+		goto err_occured;
+	}
+	if (conf->connectivity.prescaler == 0) {
 		err = ERROR_VALUE_NOT_IN_RANGE;
 		goto err_occured;
 	}
-	conf->max_resolution = resolution;
-//SystemCoreClock / prescaler = delta_pulse *1000000 / conf->max_resolution
-	conf->connectivity.prescaler = SystemCoreClock / 
-	((SERVO_MAX_PULSE_WIDTH_US - SERVO_MIN_PULSE_WIDTH_US)*1000000) *
-	conf->max_resolution;
+
+	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+	TIM_OCInitTypeDef  TIM_OCInitStructure;
+
+	TIM_TimeBaseStructure.TIM_Prescaler = conf->connectivity.prescaler;
+	TIM_TimeBaseStructure.TIM_Period = SERVO_PULSE_PERIOD_MS * 1000;
+	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+
+	TIM_TimeBaseInit(conf->connectivity.servo_TIM, &TIM_TimeBaseStructure);
+
+	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+	TIM_OCInitStructure.TIM_Pulse = (SERVO_MIN_PULSE_WIDTH_US + SERVO_MIN_PULSE_WIDTH_US) / 2;
+	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+
+	TIM_OC1Init(conf->connectivity.servo_TIM, &TIM_OCInitStructure);
+
+	TIM_OC1PreloadConfig(conf->connectivity.servo_TIM, TIM_OCPreload_Enable);
+
+	TIM_ARRPreloadConfig(conf->connectivity.servo_TIM, ENABLE);
+
+	TIM_Cmd(conf->connectivity.servo_TIM, ENABLE);
 err_occured:
 	return err;
 }
@@ -178,8 +196,7 @@ err_occured:
 gyro_error ServoInitPeriph(servo_conf* conf)
 {
 	gyro_error err = NO_ERROR;
-	/*TODO: look at maximum prescaler size(16 or 32 bits)*/
-	uint32_t prescaler_val;
+
 	if (conf == NULL) {
 		err = ERROR_NULL_POINTER;
 		goto err_occured;
@@ -200,13 +217,34 @@ gyro_error ServoInitPeriph(servo_conf* conf)
 	GPIO_PinAFConfig(conf->connectivity.servo_GPIO_PORT,
 			 conf->connectivity.pin_source,
 			 conf->connectivity.gpio_af);
+err_occured:
+	return err;
+}
 
-	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-	TIM_OCInitTypeDef  TIM_OCInitStructure;
+gyro_error ServoInit(servo_conf* conf,
+		     uint16_t pin,
+		     GPIO_TypeDef* port,
+		     TIM_TypeDef* tim)
+{
+	gyro_error err = NO_ERROR;
+	if ((conf == NULL) || (port == NULL) || (tim == NULL)) {
+		err = ERROR_NULL_POINTER;
+		goto err_occured;
+	}
 
-	
-
-
+	if ( (err = ServoInitConnectivity(&(conf->connectivity),
+		   pin, port, tim)) != NO_ERROR) {
+		goto err_occured;
+	}
+	if ( (err = ServoInitOptions(conf)) != NO_ERROR ) {
+		goto err_occured;
+	}
+	if ( (err = ServoInitPeriph(conf)) != NO_ERROR ) {
+		goto err_occured;
+	}
+	if ( (err = ServoSetDefaultTiming(conf)) != NO_ERROR ) {
+		goto err_occured;
+	}
 err_occured:
 	return err;
 }

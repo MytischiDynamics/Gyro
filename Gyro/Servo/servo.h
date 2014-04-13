@@ -20,8 +20,11 @@ typedef struct {
 
 typedef struct {
 	servo_connectivity_conf connectivity;
-	uint32_t max_resolution;
-	
 } servo_conf;
+
+gyro_error ServoInit(servo_conf* conf,
+		     uint16_t pin,
+		     GPIO_TypeDef* port,
+		     TIM_TypeDef* tim);
 
 #endif

@@ -2000,6 +2000,9 @@
     <name>$PROJ_DIR$\gyro.c</name>
   </file>
   <file>
+    <name>$PROJ_DIR$\gyro.h</name>
+  </file>
+  <file>
     <name>$PROJ_DIR$\gyro_error.h</name>
   </file>
   <file>
