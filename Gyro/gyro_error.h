@@ -2,6 +2,11 @@
 #define __GYRO_ERROR_H
 
 typedef enum {
+	STRUCT_NOT_INITIALIZED = 0,
+	STRUCT_INITIALIZED = 1
+} struct_init_status;
+
+typedef enum {
 	NO_ERROR = 0,
 	ERROR_NULL_POINTER,
 	ERROR_VALUE_NOT_IN_RANGE,

@@ -38,7 +38,7 @@ gyro_error FillGlobalData(gyro_data_t *g_data)
 		goto err_occured;
 	}
 	if( (err = ServoInit(&(g_data->servo), GPIO_Pin_12,
-			    GPIOD, TIM4)) != NO_ERROR ) {
+			     GPIOD, TIM4, 1)) != NO_ERROR ) {
 		goto err_occured;
 	}
 err_occured:

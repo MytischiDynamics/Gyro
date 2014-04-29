@@ -44,11 +44,6 @@ typedef enum {
 	ACTIVE_I2C = 1
 } l3g4200d_active_bus;
 
-typedef enum {
-	STRUCT_NOT_INITIALIZED = 0,
-	STRUCT_INITIALIZED = 1
-} l3g4200d_init_status;
-
 typedef enum {  
 	ODR_100Hz_BW_12_5	= 0x00,
 	ODR_100Hz_BW_25		= 0x01,		
@@ -228,22 +223,13 @@ typedef struct {
 	SPI_PIN_conf mosi_pin;
 	SPI_PIN_conf cs_pin;
 	
-	l3g4200d_init_status init_status;
+	struct_init_status init_status;
 } l3g4200d_connectivity_conf;
-/*
+
 typedef struct {
-	l3g4200d_output_data_rate ODR;
-	l3g4200d_axis_state axis_state;
-	l3g4200d_fullscale_state fullscale_state;
-	l3g4200d_mode mode;
-	l3g4200f_fifo_mode fifo_mode;
-} l3g4200d_settings;
-*/
-typedef struct {
-	l3g4200d_init_status init_status;
+	struct_init_status init_status;
 	uint8_t device_id;
 	l3g4200d_connectivity_conf connectivity;
-//	l3g4200d_settings settings;
 } l3g4200d_conf;
 
 uint32_t l3g4200dTimeoutCallback();

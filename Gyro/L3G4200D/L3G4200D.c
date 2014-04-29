@@ -28,7 +28,7 @@ gyro_error l3g4200dGetActiveBus(l3g4200d_connectivity_conf *conn,
 	}
 }
 
-l3g4200d_init_status l3g4200dIsInitialized(l3g4200d_conf *conf)
+struct_init_status l3g4200dIsInitialized(l3g4200d_conf *conf)
 {
 	if(conf == NULL) {
 		return STRUCT_NOT_INITIALIZED;

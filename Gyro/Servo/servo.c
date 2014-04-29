@@ -10,11 +10,16 @@
 gyro_error ServoInitConnectivity(servo_connectivity_conf* conn,
 				 uint16_t pin,
 				 GPIO_TypeDef* port,
-				 TIM_TypeDef* tim)
+				 TIM_TypeDef* tim,
+				 uint32_t channel)
 {
 	gyro_error err = NO_ERROR;
 	if (conn == NULL || port == NULL || tim == NULL) {
 		err = ERROR_NULL_POINTER;
+		goto err_occured;
+	}
+	if (channel == 0 || channel > 4) {
+		err = ERROR_VALUE_NOT_IN_RANGE;
 		goto err_occured;
 	}
 
@@ -138,6 +143,9 @@ gyro_error ServoInitConnectivity(servo_connectivity_conf* conn,
 	break;
 	}
 
+	conn->channel = channel;
+	conn->init_status = STRUCT_INITIALIZED;
+
 err_occured:
 	return err;
 }
@@ -162,6 +170,12 @@ gyro_error ServoSetDefaultTiming(servo_conf* conf)
 		err = ERROR_NULL_POINTER;
 		goto err_occured;
 	}
+
+	if (conf->connectivity.init_status == STRUCT_NOT_INITIALIZED) {
+		err = ERROR_DEVICE_NOT_INITIALIZED;
+		goto err_occured;
+	}
+
 	if (conf->connectivity.prescaler == 0) {
 		err = ERROR_VALUE_NOT_IN_RANGE;
 		goto err_occured;
@@ -184,11 +198,25 @@ gyro_error ServoSetDefaultTiming(servo_conf* conf)
 
 	TIM_OC1Init(conf->connectivity.servo_TIM, &TIM_OCInitStructure);
 
-	TIM_OC1PreloadConfig(conf->connectivity.servo_TIM, TIM_OCPreload_Enable);
-
+	switch (conf->connectivity.channel) {
+	case(1) :
+		TIM_OC1PreloadConfig(conf->connectivity.servo_TIM, TIM_OCPreload_Enable);
+		break;
+	case(2) :
+		TIM_OC2PreloadConfig(conf->connectivity.servo_TIM, TIM_OCPreload_Enable);
+		break;
+	case(3) :
+		TIM_OC3PreloadConfig(conf->connectivity.servo_TIM, TIM_OCPreload_Enable);
+		break;
+	case(4) :
+		TIM_OC4PreloadConfig(conf->connectivity.servo_TIM, TIM_OCPreload_Enable);
+		break;
+	}
 	TIM_ARRPreloadConfig(conf->connectivity.servo_TIM, ENABLE);
 
 	TIM_Cmd(conf->connectivity.servo_TIM, ENABLE);
+
+	conf->init_status = STRUCT_INITIALIZED;
 err_occured:
 	return err;
 }
@@ -224,7 +252,8 @@ err_occured:
 gyro_error ServoInit(servo_conf* conf,
 		     uint16_t pin,
 		     GPIO_TypeDef* port,
-		     TIM_TypeDef* tim)
+		     TIM_TypeDef* tim,
+		     uint32_t channel)
 {
 	gyro_error err = NO_ERROR;
 	if ((conf == NULL) || (port == NULL) || (tim == NULL)) {
@@ -233,7 +262,7 @@ gyro_error ServoInit(servo_conf* conf,
 	}
 
 	if ( (err = ServoInitConnectivity(&(conf->connectivity),
-		   pin, port, tim)) != NO_ERROR) {
+		   pin, port, tim, channel)) != NO_ERROR) {
 		goto err_occured;
 	}
 	if ( (err = ServoInitOptions(conf)) != NO_ERROR ) {
@@ -245,6 +274,42 @@ gyro_error ServoInit(servo_conf* conf,
 	if ( (err = ServoSetDefaultTiming(conf)) != NO_ERROR ) {
 		goto err_occured;
 	}
+err_occured:
+	return err;
+}
+
+gyro_error ServoSetSpeed(servo_conf* conf, int32_t speed)
+{
+	gyro_error err = NO_ERROR;
+
+	if (conf == NULL) {
+		err = ERROR_NULL_POINTER;
+		goto err_occured;
+	}
+/*	if (speed > conf->resolution) {
+		err = ERROR_VALUE_NOT_IN_RANGE;
+		goto err_occured;
+	}
+*/	if (conf->init_status == STRUCT_NOT_INITIALIZED)
+	{
+		err = ERROR_DEVICE_NOT_INITIALIZED;
+		goto err_occured;
+	}
+	switch (conf->connectivity.channel) {
+		case(1) :
+			conf->connectivity.servo_TIM->CCR1 = speed;
+			break;
+		case(2) :
+			conf->connectivity.servo_TIM->CCR2 = speed;
+			break;
+		case(3) :
+			conf->connectivity.servo_TIM->CCR3 = speed;
+			break;
+		case(4) :
+			conf->connectivity.servo_TIM->CCR4 = speed;
+			break;
+	}
+	
 err_occured:
 	return err;
 }
