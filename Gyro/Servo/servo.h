@@ -34,4 +34,6 @@ gyro_error ServoInit(servo_conf* conf,
 		     TIM_TypeDef* tim,
 		     uint32_t channel);
 
+gyro_error ServoSetSpeed(servo_conf* conf, int32_t speed);
+
 #endif

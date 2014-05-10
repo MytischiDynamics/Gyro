@@ -6,8 +6,8 @@
 #include "gyro_error.h"
 #include "L3G4200D/L3G4200D.h"
 #include "Servo/servo.h"
-typedef struct
-{
+
+typedef struct {
 	l3g4200d_conf gyroscope;
 	servo_conf servo;
 } gyro_data_t;

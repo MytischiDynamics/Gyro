@@ -1,7 +1,7 @@
 #include "servo.h"
 
 //Servomotor control pulse period in milliseconds
-#define SERVO_PULSE_PERIOD_MS 50
+#define SERVO_PULSE_PERIOD_MS 20
 //max control pulse width
 #define SERVO_MAX_PULSE_WIDTH_US 2000
 //min control pulse width
@@ -158,7 +158,7 @@ gyro_error ServoInitOptions(servo_conf* conf)
 		goto err_occured;
 	}
 //Make timer clock 1uS period
-	conf->connectivity.prescaler = SystemCoreClock / 1000000;	
+	conf->connectivity.prescaler = (uint16_t) ((SystemCoreClock / 2) / 1000000) - 1;;	
 err_occured:
 	return err;
 }
@@ -185,7 +185,7 @@ gyro_error ServoSetDefaultTiming(servo_conf* conf)
 	TIM_OCInitTypeDef  TIM_OCInitStructure;
 
 	TIM_TimeBaseStructure.TIM_Prescaler = conf->connectivity.prescaler;
-	TIM_TimeBaseStructure.TIM_Period = SERVO_PULSE_PERIOD_MS * 1000;
+	TIM_TimeBaseStructure.TIM_Period = SERVO_PULSE_PERIOD_MS * 1000 - 1;
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
@@ -193,22 +193,24 @@ gyro_error ServoSetDefaultTiming(servo_conf* conf)
 
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStructure.TIM_Pulse = (SERVO_MIN_PULSE_WIDTH_US + SERVO_MIN_PULSE_WIDTH_US) / 2;
+	TIM_OCInitStructure.TIM_Pulse = (SERVO_MIN_PULSE_WIDTH_US + SERVO_MAX_PULSE_WIDTH_US) / 2 - 1;
 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-
-	TIM_OC1Init(conf->connectivity.servo_TIM, &TIM_OCInitStructure);
 
 	switch (conf->connectivity.channel) {
 	case(1) :
+		TIM_OC1Init(conf->connectivity.servo_TIM, &TIM_OCInitStructure);
 		TIM_OC1PreloadConfig(conf->connectivity.servo_TIM, TIM_OCPreload_Enable);
 		break;
 	case(2) :
+		TIM_OC2Init(conf->connectivity.servo_TIM, &TIM_OCInitStructure);
 		TIM_OC2PreloadConfig(conf->connectivity.servo_TIM, TIM_OCPreload_Enable);
 		break;
 	case(3) :
+		TIM_OC3Init(conf->connectivity.servo_TIM, &TIM_OCInitStructure);
 		TIM_OC3PreloadConfig(conf->connectivity.servo_TIM, TIM_OCPreload_Enable);
 		break;
 	case(4) :
+		TIM_OC4Init(conf->connectivity.servo_TIM, &TIM_OCInitStructure);
 		TIM_OC4PreloadConfig(conf->connectivity.servo_TIM, TIM_OCPreload_Enable);
 		break;
 	}
@@ -237,9 +239,9 @@ gyro_error ServoInitPeriph(servo_conf* conf)
 
 	GPIO_InitStructure.GPIO_Pin = conf->connectivity.servo_PIN;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN ;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
 	GPIO_Init(conf->connectivity.servo_GPIO_PORT, &GPIO_InitStructure);
 
 	GPIO_PinAFConfig(conf->connectivity.servo_GPIO_PORT,
