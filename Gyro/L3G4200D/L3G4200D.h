@@ -89,7 +89,13 @@ typedef enum {
 	FIFO_STREAM_MODE		= 0x02,
 	FIFO_STREAM_TO_FIFO_MODE	= 0x03,
 	FIFO_BYPASS_TO_STREAM_MODE	= 0x04
-} l3g4200f_fifo_mode;
+} l3g4200d_fifo_mode;
+
+typedef enum {
+	AXIS_X,
+	AXIS_Y,
+	AXIS_Z
+} l3g4200d_axis;
 
 typedef struct {
 	uint8_t ID;
@@ -236,6 +242,9 @@ uint32_t l3g4200dTimeoutCallback();
 gyro_error l3g4200dInit(l3g4200d_conf*, SPI_TypeDef*, uint32_t,
 			SPI_PIN_conf*, SPI_PIN_conf*,
 			SPI_PIN_conf*, SPI_PIN_conf*);
+gyro_error l3g4200dReadAngularVelocity(l3g4200d_conf*, l3g4200d_axis,
+					uint16_t*);
+
 
 gyro_error l3g4200dRead(uint8_t *buffer, uint8_t addr,
 			     uint16_t bytes_to_read, l3g4200d_conf *conf);

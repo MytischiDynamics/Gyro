@@ -32,24 +32,20 @@ gyro_error FillGlobalData(gyro_data_t *g_data)
 	cs_pin.SPIx_GPIO_PORT = GPIOC;
 	cs_pin.SPIx_GPIO_CLK = RCC_AHB1Periph_GPIOC;
 	
-/*	if ( (err = l3g4200dInit(&(g_data->gyroscope),
+	if ( (err = l3g4200dInit(&(g_data->gyroscope),
 			SPI1, RCC_APB2Periph_SPI1,
 			&sck_pin, &mosi_pin, &miso_pin, &cs_pin)) != NO_ERROR) {
 		goto err_occured;
-	}*/
+	}
 //TIM3 CH1 PC6
-	if( (err = ServoInit(&(g_gyro.servo), GPIO_Pin_6,
+/*	if( (err = ServoInit(&(g_gyro.servo), GPIO_Pin_6,
 			     GPIOC, TIM3, 1)) != NO_ERROR ) {
 		goto err_occured;
-	}
+	}*/
 err_occured:
 	return err;
 }
-/*
-void __iar_program_start()
-{
-}
-*/
+
 int main(void)
 {
 /*At this stage the microcontroller clock setting is already configured,
@@ -60,7 +56,15 @@ int main(void)
   system_stm32f4xx.c file
 */
 	FillGlobalData(&g_gyro);
+	uint16_t vel = 0;
 
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vel);
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vel);
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vel);
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vel);
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vel);
+
+/*
 	ServoSetSpeed(&(g_gyro.servo), 1100);
 	ServoSetSpeed(&(g_gyro.servo), 1150);
 	ServoSetSpeed(&(g_gyro.servo), 1200);
@@ -76,7 +80,7 @@ int main(void)
 	ServoSetSpeed(&(g_gyro.servo), 1700);
 	ServoSetSpeed(&(g_gyro.servo), 1750);
 	ServoSetSpeed(&(g_gyro.servo), 1800);
-
+*/
 	while(1) {
 
 	}
