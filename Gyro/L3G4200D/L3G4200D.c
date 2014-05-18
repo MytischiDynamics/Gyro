@@ -507,61 +507,6 @@ err_occured:
 	return err;
 }
 
-gyro_error l3g4200dReadAngularVelocity(l3g4200d_conf* conf, l3g4200d_axis axis,
-					uint16_t* velocity)
-{
-	gyro_error err = NO_ERROR;
-	uint8_t val_l = 0x00;
-	uint8_t val_h = 0x00;
-	
-
-	if ((conf == NULL) || (velocity == NULL)) {
-		err = ERROR_NULL_POINTER;
-		goto err_occured;
-	}
-
-	switch (axis) {
-		case AXIS_X:
-			if ((err = l3g4200dRead(&val_l, OUT_X_L,
-						1, conf)) != NO_ERROR) {
-				goto err_occured;
-			}
-			if ((err = l3g4200dRead(&val_h, OUT_X_H,
-						1, conf)) != NO_ERROR) {
-				goto err_occured;
-			}
-		break;
-		case AXIS_Y:
-			if ((err = l3g4200dRead(&val_l, OUT_Y_L,
-						1, conf)) != NO_ERROR) {
-				goto err_occured;
-			}
-			if ((err = l3g4200dRead(&val_h, OUT_Y_H,
-						1, conf)) != NO_ERROR) {
-				goto err_occured;
-			}
-		break;
-		case AXIS_Z:
-			if ((err = l3g4200dRead(&val_l, OUT_Z_L,
-						1, conf)) != NO_ERROR) {
-				goto err_occured;
-			}
-			if ((err = l3g4200dRead(&val_h, OUT_Z_H,
-						1, conf)) != NO_ERROR) {
-				goto err_occured;
-			}
-		break;
-		default:
-			err = ERROR_VALUE_NOT_IN_RANGE;
-			goto err_occured;
-	}
-
-	*velocity = (uint16_t)val_l + (uint16_t)((uint16_t)(val_h) << 8);
-
-err_occured:
-	return err;
-}
-
 gyro_error l3g4200dInit(l3g4200d_conf *conf,
 			SPI_TypeDef *SPIx, uint32_t SPIx_CLK,
 			SPI_PIN_conf *pin_sck,
