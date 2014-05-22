@@ -9,6 +9,7 @@ gyro_error FillGlobalData(gyro_data_t *g_data)
 	SPI_PIN_conf miso_pin;
 	SPI_PIN_conf mosi_pin;
 	SPI_PIN_conf cs_pin;
+
 	
 	sck_pin.SPIx_PIN = GPIO_Pin_5;
 	sck_pin.SPIx_GPIO_PORT = GPIOA;
@@ -31,7 +32,22 @@ gyro_error FillGlobalData(gyro_data_t *g_data)
 	cs_pin.SPIx_PIN = GPIO_Pin_5;
 	cs_pin.SPIx_GPIO_PORT = GPIOC;
 	cs_pin.SPIx_GPIO_CLK = RCC_AHB1Periph_GPIOC;
-	
+
+//For STM32F401C Discovery board only!!!!
+//Disable another device that uses SPI1 Interface
+//Remove for custom projects!!!!!
+	GPIO_InitTypeDef GPIO_InitStructure;
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
+	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOE, &GPIO_InitStructure);
+
+	GPIO_SetBits(GPIOE, GPIO_Pin_3);
+///////////////////////////////////////////////////
+
+
 	if ( (err = l3g4200dInit(&(g_data->gyroscope),
 			SPI1, RCC_APB2Periph_SPI1,
 			&sck_pin, &mosi_pin, &miso_pin, &cs_pin)) != NO_ERROR) {
@@ -56,13 +72,40 @@ int main(void)
   system_stm32f4xx.c file
 */
 	FillGlobalData(&g_gyro);
-	uint16_t vel = 0;
+	uint16_t velx = 0;
+	uint16_t vely = 0;
+	uint16_t velz = 0;
 
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vel);
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vel);
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vel);
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vel);
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vel);
+	uint16_t vels[3];
+
+/*	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_X, &velx);
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vely);
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Z, &velz);
+
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_X, &velx);
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vely);
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Z, &velz);
+
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_X, &velx);
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vely);
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Z, &velz);
+
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_X, &velx);
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vely);
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Z, &velz);
+
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_X, &velx);
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vely);
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Z, &velz);
+
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_X, &velx);
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vely);
+	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Z, &velz);
+*/
+
+	l3g4200dRead((uint8_t*)vels, OUT_X_L, 6, &g_gyro.gyroscope);
+	l3g4200dRead((uint8_t*)vels, OUT_X_L, 6, &g_gyro.gyroscope);
+	l3g4200dRead((uint8_t*)vels, OUT_X_L, 6, &g_gyro.gyroscope);
 
 /*
 	ServoSetSpeed(&(g_gyro.servo), 1100);

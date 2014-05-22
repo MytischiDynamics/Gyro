@@ -102,46 +102,46 @@ typedef struct {
 } l3g4200d_WHO_AM_I;
 
 typedef struct {
-	uint8_t DR_BW	: 4;
-	uint8_t PD	: 1;
-	uint8_t Zen	: 1;
-	uint8_t Yen	: 1;
 	uint8_t Xen	: 1;
+	uint8_t Yen	: 1;
+	uint8_t Zen	: 1;
+	uint8_t PD	: 1;
+	uint8_t DR_BW	: 4;
 } l3g4200d_CTRL_REG1;
 
 typedef struct {
-	uint8_t		: 2;
-	uint8_t HPM	: 2;
 	uint8_t HPCF	: 4;
+	uint8_t HPM	: 2;
+	uint8_t		: 2;
 } l3g4200d_CTRL_REG2;
 
 typedef struct {
-	uint8_t I1_Int1		: 1;
-	uint8_t I1_Boot		: 1;
-	uint8_t H_Lactive	: 1;
-	uint8_t PP_OD		: 1;
-	uint8_t I2_DRDY		: 1;
-	uint8_t I2_WTM		: 1;
-	uint8_t I2_ORun		: 1;
 	uint8_t I2_Empty	: 1;
+	uint8_t I2_ORun		: 1;
+	uint8_t I2_WTM		: 1;
+	uint8_t I2_DRDY		: 1;
+	uint8_t PP_OD		: 1;
+	uint8_t H_Lactive	: 1;
+	uint8_t I1_Boot		: 1;
+	uint8_t I1_Int1		: 1;
 } l3g4200d_CTRL_REG3;
 
 typedef struct {
-	uint8_t BDU	: 1;
-	uint8_t BLE	: 1;
-	uint8_t FS	: 2;
-	uint8_t		: 1;
-	uint8_t ST	: 2;
 	uint8_t SIM	: 1;
+	uint8_t ST	: 2;
+	uint8_t		: 1;
+	uint8_t FS	: 2;
+	uint8_t BLE	: 1;
+	uint8_t BDU	: 1;
 } l3g4200d_CTRL_REG4;
 
 typedef struct {
-	uint8_t	BOOT		: 1;
-	uint8_t FIFO_EN		: 1;
-	uint8_t 		: 1;
-	uint8_t HPen		: 1;
-	uint8_t Int1_Sel	: 2;
 	uint8_t Out_Sel		: 2;
+	uint8_t Int1_Sel	: 2;
+	uint8_t HPen		: 1;
+	uint8_t 		: 1;
+	uint8_t FIFO_EN		: 1;
+	uint8_t	BOOT		: 1;
 } l3g4200d_CTRL_REG5;
 
 typedef struct {
@@ -153,14 +153,14 @@ typedef struct {
 } l3g4200d_OUT_TEMP;
 
 typedef struct {
-	uint8_t	ZYXOR	: 1;
-	uint8_t ZOR	: 1;
-	uint8_t YOR	: 1;
-	uint8_t XOR	: 1;
-	uint8_t ZYXDA	: 1;
-	uint8_t ZDA	: 1;
-	uint8_t YDA	: 1;
 	uint8_t XDA	: 1;
+	uint8_t YDA	: 1;
+	uint8_t ZDA	: 1;
+	uint8_t ZYXDA	: 1;
+	uint8_t XOR	: 1;
+	uint8_t YOR	: 1;
+	uint8_t ZOR	: 1;
+	uint8_t	ZYXOR	: 1;
 } l3g4200d_STATUS_REG;
 
 typedef struct {
@@ -168,8 +168,8 @@ typedef struct {
 } l3g4200d_out_axis_border;
 
 typedef struct {
-	uint8_t	FM	: 3;
 	uint8_t WTM	: 5;
+	uint8_t	FM	: 3;
 } l3g4200d_FIFO_CTRL_REG;
 
 typedef struct {
@@ -180,35 +180,35 @@ typedef struct {
 } l3g4200d_FIFO_SRC_REG;
 
 typedef struct {
-	uint8_t	AND_OR	: 1;
-	uint8_t LIR	: 1;
-	uint8_t ZHIE	: 1;
-	uint8_t ZLIE	: 1;
-	uint8_t YHIE	: 1;
-	uint8_t YLIE	: 1;
-	uint8_t XHIE	: 1;
 	uint8_t XLIE	: 1;
+	uint8_t XHIE	: 1;
+	uint8_t YLIE	: 1;
+	uint8_t YHIE	: 1;
+	uint8_t ZLIE	: 1;
+	uint8_t ZHIE	: 1;
+	uint8_t LIR	: 1;
+	uint8_t	AND_OR	: 1;
 } l3g4200d_INT1_CFG;
 
 typedef struct {
-	uint8_t 	: 1;
-	uint8_t IA	: 1;
-	uint8_t ZH	: 1;
-	uint8_t ZL	: 1;
-	uint8_t YH	: 1;
-	uint8_t YL	: 1;
-	uint8_t XH	: 1;
 	uint8_t XL	: 1;
+	uint8_t XH	: 1;
+	uint8_t YL	: 1;
+	uint8_t YH	: 1;
+	uint8_t ZL	: 1;
+	uint8_t ZH	: 1;
+	uint8_t IA	: 1;
+	uint8_t 	: 1;
 } l3g4200d_INT1_SRC;
 
 typedef struct {
-	uint16_t 	: 1;
 	uint16_t level	: 15;
+	uint16_t 	: 1;
 } l3g4200d_Int_Threshold_Level;
 
 typedef struct {
-	uint8_t WAIT		: 1;
 	uint8_t Duration	: 7;
+	uint8_t WAIT		: 1;
 } l3g4200d_INT1_DURATION;
 
 typedef struct {

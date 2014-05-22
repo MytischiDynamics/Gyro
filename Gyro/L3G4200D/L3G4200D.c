@@ -94,6 +94,7 @@ gyro_error l3g4200dInitPeriph(l3g4200d_connectivity_conf *conn)
 					conn->mosi_pin.SPIx_GPIO_CLK |
 					conn->miso_pin.SPIx_GPIO_CLK |
 					conn->cs_pin.SPIx_GPIO_CLK, ENABLE);
+
 		GPIO_PinAFConfig(conn->sck_pin.SPIx_GPIO_PORT,
 				 conn->sck_pin.SPIx_SOURCE,
 				 conn->sck_pin.SPIx_AF);
@@ -223,9 +224,9 @@ gyro_error l3g4200dSetAxis(l3g4200d_conf *conf, axis_enable axis_state)
 		goto err_occured;
 	}
 
-	value.Xen = axis_state & (0x01 << 2);
-	value.Yen = axis_state & (0x01 << 1);
-	value.Xen = axis_state & (0x01);
+	value.Xen = (axis_state & (0x01 << 2))>>2;
+	value.Yen = (axis_state & (0x01 << 1))>>1;
+	value.Zen = axis_state & (0x01);
 
 	if ((err = l3g4200dWrite((uint8_t*)&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
 		goto err_occured;
@@ -258,6 +259,7 @@ gyro_error l3g4200dSetFullscale(l3g4200d_conf *conf, l3g4200d_fullscale_state st
 		goto err_occured;
 	}
 	value.FS = st;
+	value.BDU = 0x01;
 	if ((err = l3g4200dWrite((uint8_t*)&value, CTRL_REG4, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
@@ -402,13 +404,13 @@ gyro_error l3g4200dInitDefaultSettings(l3g4200d_conf *conf)
 	if ((err = l3g4200dSetFullscale(conf, FULLSCALE_250)) != NO_ERROR) {
 		goto err_occured;
 	}
-	if ((err = l3g4200dSetFIFOMode(conf, FIFO_MODE)) != NO_ERROR) {
+	if ((err = l3g4200dSetFIFOMode(conf, FIFO_DISABLE)) != NO_ERROR) {
 		goto err_occured;
 	}
-	if ((err = l3g4200dSetWatermark(conf, 2)) != NO_ERROR) {
+/*	if ((err = l3g4200dSetWatermark(conf, 2)) != NO_ERROR) {
 		goto err_occured;
 	}
-	if ((err = l3g4200dSetODR(conf, ODR_100Hz_BW_12_5)) != NO_ERROR) {
+*/	if ((err = l3g4200dSetODR(conf, ODR_100Hz_BW_12_5)) != NO_ERROR) {
 		goto err_occured;
 	}
 	if ((err = l3g4200dSetAxis(conf, X_ENABLE | Y_ENABLE | Z_ENABLE)) != NO_ERROR) {
@@ -643,9 +645,11 @@ gyro_error l3g4200dWrite(uint8_t *buffer, uint8_t addr,
 		return ERROR_VALUE_NOT_IN_RANGE;
 	} else {
 		if (bytes_to_write > 1) {
-			address = (uint8_t)(READWRITE_CMD | MULTIPLEBYTE_CMD | addr);
+//			address = (uint8_t)(READWRITE_CMD | MULTIPLEBYTE_CMD | addr);
+			address = (uint8_t)(MULTIPLEBYTE_CMD | addr);
 		} else {
-			address = (uint8_t)(READWRITE_CMD | addr);
+			address = (uint8_t)addr;
+//			address = (uint8_t)(READWRITE_CMD | addr);
 		}
 		ret_err = l3g4200dCsLow(&(conf->connectivity));
 		if (ret_err != NO_ERROR)
