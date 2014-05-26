@@ -256,6 +256,10 @@ uint32_t l3g4200dTimeoutCallback();
 gyro_error l3g4200dInit(l3g4200d_conf*, SPI_TypeDef*, uint32_t,
 			SPI_PIN_conf*, SPI_PIN_conf*,
 			SPI_PIN_conf*, SPI_PIN_conf*);
+
+gyro_error l3g4200dSetDataReadyInterrupt(l3g4200d_conf* conf, interrupt_pin_conf* intx_pin_conf);
+
+
 gyro_error l3g4200dReadAngularVelocity(l3g4200d_conf*, l3g4200d_axis,
 					uint16_t*);
 

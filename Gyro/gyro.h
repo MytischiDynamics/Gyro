@@ -12,6 +12,6 @@ typedef struct {
 	servo_conf servo;
 } gyro_data_t;
 
-gyro_data_t get_gyro_data();
+gyro_data_t* get_gyro_data();
 
 #endif

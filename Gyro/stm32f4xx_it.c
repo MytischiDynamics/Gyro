@@ -144,11 +144,11 @@ void SysTick_Handler(void)
   //TimingDelay_Decrement();
 }
 
-void EXTI4_IRQHandler(void)
+void EXTI1_IRQHandler(void)
 {
 	gyro_data_t* gd = get_gyro_data();
 
-	uint16_t velx = 0;
+	int16_t velx = 0;
 	uint16_t vely = 0;
 	uint16_t velz = 0;
 
@@ -156,7 +156,7 @@ void EXTI4_IRQHandler(void)
 	l3g4200dReadAngularVelocity(&(gd->gyroscope), AXIS_Y, &vely);
 	l3g4200dReadAngularVelocity(&(gd->gyroscope), AXIS_Z, &velz);
 
-    EXTI_ClearITPendingBit(gd->gyroscope.connectivity.int2_pin.EXTI_line);
+	EXTI_ClearITPendingBit(gd->gyroscope.connectivity.int2_pin.EXTI_line);
 }
 
 

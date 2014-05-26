@@ -509,7 +509,7 @@ err_occured:
 	return err;
 }
 
-gyro_error l3g4200dSetDataReadyInterrupt(interrupt_pin_conf* intx_pin_conf)
+gyro_error l3g4200dSetDataReadyInterrupt(l3g4200d_conf* conf, interrupt_pin_conf* intx_pin_conf)
 {
 	gyro_error err = NO_ERROR;
 	GPIO_InitTypeDef GPIO_InitStructure;
@@ -531,7 +531,7 @@ gyro_error l3g4200dSetDataReadyInterrupt(interrupt_pin_conf* intx_pin_conf)
 	GPIO_InitStructure.GPIO_Pin = intx_pin_conf->INTx_pin;
 	GPIO_Init(intx_pin_conf->INTx_GPIO_PORT, &GPIO_InitStructure);
 
-	SYSCFG_EXTILineConfig(EXTI_port_source, EXTI_pin_source);
+	SYSCFG_EXTILineConfig(intx_pin_conf->EXTI_port_source, intx_pin_conf->EXTI_pin_source);
 
 	EXTI_InitStructure.EXTI_Line = intx_pin_conf->EXTI_line;
 	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
@@ -554,6 +554,9 @@ gyro_error l3g4200dSetDataReadyInterrupt(interrupt_pin_conf* intx_pin_conf)
 	if ((err = l3g4200dWrite((uint8_t*)&value, CTRL_REG3, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
+
+	uint16_t vels[3];
+	l3g4200dRead((uint8_t*)vels, OUT_X_L, 6, conf);
 
 err_occured:
 	return err;

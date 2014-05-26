@@ -2,7 +2,7 @@
 
 gyro_data_t g_gyro;
 
-gyro_data_t get_gyro_data()
+gyro_data_t* get_gyro_data()
 {
 	return &g_gyro;
 }
@@ -59,15 +59,15 @@ gyro_error FillGlobalData(gyro_data_t *g_data)
 		goto err_occured;
 	}
 
-	int2_pin_conf.INTx_pin = GPIO_Pin_4;
-	int2_pin_conf.INTx_GPIO_PORT = GPIOC;
-	int2_pin_conf.INTx_GPIO_CLK = RCC_AHB1Periph_GPIOC;
-	int2_pin_conf.EXTI_port_source = EXTI_PortSourceGPIOA;
-	int2_pin_conf.EXTI_pin_source = EXTI_PinSource4;
-	int2_pin_conf.EXTI_line = EXTI_Line4;
-	int2_pin_conf.EXTIx_irqn = EXTI3_IRQn;
+	int2_pin_conf.INTx_pin = GPIO_Pin_1;
+	int2_pin_conf.INTx_GPIO_PORT = GPIOB;
+	int2_pin_conf.INTx_GPIO_CLK = RCC_AHB1Periph_GPIOB;
+	int2_pin_conf.EXTI_port_source = EXTI_PortSourceGPIOB;
+	int2_pin_conf.EXTI_pin_source = EXTI_PinSource1;
+	int2_pin_conf.EXTI_line = EXTI_Line1;
+	int2_pin_conf.EXTIx_irqn = EXTI1_IRQn;
 
-	if ( (err = l3g4200dSetDataReadyInterrupt(&int2_pin_conf)) != NO_ERROR) {
+	if ( (err = l3g4200dSetDataReadyInterrupt(&(g_data->gyroscope), &int2_pin_conf)) != NO_ERROR) {
 		goto err_occured;
 	}
 
@@ -90,58 +90,7 @@ int main(void)
   system_stm32f4xx.c file
 */
 	FillGlobalData(&g_gyro);
-	uint16_t velx = 0;
-	uint16_t vely = 0;
-	uint16_t velz = 0;
 
-	uint16_t vels[3];
-
-/*	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_X, &velx);
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vely);
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Z, &velz);
-
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_X, &velx);
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vely);
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Z, &velz);
-
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_X, &velx);
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vely);
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Z, &velz);
-
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_X, &velx);
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vely);
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Z, &velz);
-
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_X, &velx);
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vely);
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Z, &velz);
-
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_X, &velx);
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Y, &vely);
-	l3g4200dReadAngularVelocity(&g_gyro.gyroscope, AXIS_Z, &velz);
-*/
-
-	l3g4200dRead((uint8_t*)vels, OUT_X_L, 6, &g_gyro.gyroscope);
-	l3g4200dRead((uint8_t*)vels, OUT_X_L, 6, &g_gyro.gyroscope);
-	l3g4200dRead((uint8_t*)vels, OUT_X_L, 6, &g_gyro.gyroscope);
-
-/*
-	ServoSetSpeed(&(g_gyro.servo), 1100);
-	ServoSetSpeed(&(g_gyro.servo), 1150);
-	ServoSetSpeed(&(g_gyro.servo), 1200);
-	ServoSetSpeed(&(g_gyro.servo), 1250);
-	ServoSetSpeed(&(g_gyro.servo), 1300);
-	ServoSetSpeed(&(g_gyro.servo), 1350);
-	ServoSetSpeed(&(g_gyro.servo), 1400);
-	ServoSetSpeed(&(g_gyro.servo), 1450);
-	ServoSetSpeed(&(g_gyro.servo), 1500);
-	ServoSetSpeed(&(g_gyro.servo), 1550);
-	ServoSetSpeed(&(g_gyro.servo), 1600);
-	ServoSetSpeed(&(g_gyro.servo), 1650);
-	ServoSetSpeed(&(g_gyro.servo), 1700);
-	ServoSetSpeed(&(g_gyro.servo), 1750);
-	ServoSetSpeed(&(g_gyro.servo), 1800);
-*/
 	while(1) {
 
 	}
