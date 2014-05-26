@@ -509,6 +509,56 @@ err_occured:
 	return err;
 }
 
+gyro_error l3g4200dSetDataReadyInterrupt(interrupt_pin_conf* intx_pin_conf)
+{
+	gyro_error err = NO_ERROR;
+	GPIO_InitTypeDef GPIO_InitStructure;
+	NVIC_InitTypeDef NVIC_InitStructure;
+	EXTI_InitTypeDef EXTI_InitStructure;
+
+	l3g4200d_CTRL_REG3 value;
+
+	if (intx_pin_conf == NULL) {
+		err = ERROR_NULL_POINTER;
+		goto err_occured;
+	}
+
+	RCC_AHB1PeriphClockCmd(intx_pin_conf->INTx_GPIO_CLK, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.GPIO_Pin = intx_pin_conf->INTx_pin;
+	GPIO_Init(intx_pin_conf->INTx_GPIO_PORT, &GPIO_InitStructure);
+
+	SYSCFG_EXTILineConfig(EXTI_port_source, EXTI_pin_source);
+
+	EXTI_InitStructure.EXTI_Line = intx_pin_conf->EXTI_line;
+	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+	EXTI_Init(&EXTI_InitStructure);
+
+	NVIC_InitStructure.NVIC_IRQChannel = intx_pin_conf->EXTIx_irqn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+
+	if ((err = l3g4200dRead((uint8_t*)&value, CTRL_REG3, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+
+	value.I2_DRDY = 0x01;
+
+	if ((err = l3g4200dWrite((uint8_t*)&value, CTRL_REG3, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+
+err_occured:
+	return err;
+}
+
 gyro_error l3g4200dInit(l3g4200d_conf *conf,
 			SPI_TypeDef *SPIx, uint32_t SPIx_CLK,
 			SPI_PIN_conf *pin_sck,

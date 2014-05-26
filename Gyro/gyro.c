@@ -2,6 +2,11 @@
 
 gyro_data_t g_gyro;
 
+gyro_data_t get_gyro_data()
+{
+	return &g_gyro;
+}
+
 gyro_error FillGlobalData(gyro_data_t *g_data)
 {
 	gyro_error err;
@@ -9,7 +14,7 @@ gyro_error FillGlobalData(gyro_data_t *g_data)
 	SPI_PIN_conf miso_pin;
 	SPI_PIN_conf mosi_pin;
 	SPI_PIN_conf cs_pin;
-
+	interrupt_pin_conf int2_pin_conf;
 	
 	sck_pin.SPIx_PIN = GPIO_Pin_5;
 	sck_pin.SPIx_GPIO_PORT = GPIOA;
@@ -53,6 +58,19 @@ gyro_error FillGlobalData(gyro_data_t *g_data)
 			&sck_pin, &mosi_pin, &miso_pin, &cs_pin)) != NO_ERROR) {
 		goto err_occured;
 	}
+
+	int2_pin_conf.INTx_pin = GPIO_Pin_4;
+	int2_pin_conf.INTx_GPIO_PORT = GPIOC;
+	int2_pin_conf.INTx_GPIO_CLK = RCC_AHB1Periph_GPIOC;
+	int2_pin_conf.EXTI_port_source = EXTI_PortSourceGPIOA;
+	int2_pin_conf.EXTI_pin_source = EXTI_PinSource4;
+	int2_pin_conf.EXTI_line = EXTI_Line4;
+	int2_pin_conf.EXTIx_irqn = EXTI3_IRQn;
+
+	if ( (err = l3g4200dSetDataReadyInterrupt(&int2_pin_conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+
 //TIM3 CH1 PC6
 /*	if( (err = ServoInit(&(g_gyro.servo), GPIO_Pin_6,
 			     GPIOC, TIM3, 1)) != NO_ERROR ) {

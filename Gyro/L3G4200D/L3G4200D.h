@@ -220,6 +220,18 @@ typedef struct {
 } SPI_PIN_conf;
 
 typedef struct {
+	uint16_t INTx_pin;
+	GPIO_TypeDef* INTx_GPIO_PORT;
+	uint32_t INTx_GPIO_CLK;
+
+	uint8_t EXTI_port_source;
+	uint8_t EXTI_pin_source;
+
+	uint32_t EXTI_line;
+	uint32_t EXTIx_irqn;
+} interrupt_pin_conf;
+
+typedef struct {
 	l3g4200d_active_bus active_bus;
 	SPI_TypeDef *SPIx;	//SPI1, SPI2 etc.
 	uint32_t SPIx_CLK;	//RCC_APB1Periph_SPIx
@@ -228,6 +240,8 @@ typedef struct {
 	SPI_PIN_conf miso_pin;
 	SPI_PIN_conf mosi_pin;
 	SPI_PIN_conf cs_pin;
+
+	interrupt_pin_conf int2_pin;
 	
 	struct_init_status init_status;
 } l3g4200d_connectivity_conf;

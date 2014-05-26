@@ -144,6 +144,22 @@ void SysTick_Handler(void)
   //TimingDelay_Decrement();
 }
 
+void EXTI4_IRQHandler(void)
+{
+	gyro_data_t* gd = get_gyro_data();
+
+	uint16_t velx = 0;
+	uint16_t vely = 0;
+	uint16_t velz = 0;
+
+	l3g4200dReadAngularVelocity(&(gd->gyroscope), AXIS_X, &velx);
+	l3g4200dReadAngularVelocity(&(gd->gyroscope), AXIS_Y, &vely);
+	l3g4200dReadAngularVelocity(&(gd->gyroscope), AXIS_Z, &velz);
+
+    EXTI_ClearITPendingBit(gd->gyroscope.connectivity.int2_pin.EXTI_line);
+}
+
+
 /******************************************************************************/
 /*                 STM32F4xx Peripherals Interrupt Handlers                   */
 /*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */
