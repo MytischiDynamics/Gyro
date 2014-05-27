@@ -89,10 +89,11 @@ int main(void)
   To reconfigure the default setting of SystemInit() function, refer to
   system_stm32f4xx.c file
 */
-	gyro_error err;
-	if((err = FillGlobalData(&g_gyro)) != NO_ERROR) {
+//	gyro_error err;
+	if((FillGlobalData(&g_gyro)) != NO_ERROR) {
 		goto err_occured;
 	}
+	g_gyro.vels_count = 0;
 
 	while(1) {
 

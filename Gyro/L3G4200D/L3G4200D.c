@@ -501,7 +501,7 @@ gyro_error l3g4200dInitDefaultSettings(l3g4200d_conf *conf)
 	if ((err = l3g4200dSetODR(conf, ODR_100Hz_BW_12_5)) != NO_ERROR) {
 		goto err_occured;
 	}
-	if ((err = l3g4200dSetAxis(conf, X_ENABLE/* | Y_ENABLE | Z_ENABLE*/)) != NO_ERROR) {
+	if ((err = l3g4200dSetAxis(conf, X_ENABLE | Y_ENABLE | Z_ENABLE)) != NO_ERROR) {
 		goto err_occured;
 	}
 	if ((err = l3g4200dSetBDU(conf, 1)) != NO_ERROR) {
@@ -547,7 +547,7 @@ void l3g4200dIsNewDataAvailable_Unsafe(l3g4200d_conf* conf, int* available)
 {
 	l3g4200d_STATUS_REG status_reg;
 
-	l3g4200dRead_Unsafe((uint8_t*)&status_reg, STATUS_REG, 1, conf);
+	l3g4200dRead_Unsafe((uint8_t*)&status_reg, (uint8_t)STATUS_REG, 1, conf);
 
 	if (status_reg.ZYXDA == 1) {
 		*available = 1;
@@ -626,7 +626,6 @@ err_occured:
 void l3g4200dReadAngularVelocity_Unsafe_DataReady(l3g4200d_conf* conf, l3g4200d_axis axis,
 					int16_t* velocity)
 {
-	int ready = 0;
 	int16_t val = 0x0000;
 
 	switch (axis) {
@@ -675,7 +674,7 @@ gyro_error l3g4200dReadAngularVelocityBulk(l3g4200d_conf* conf,
 	gyro_error err = NO_ERROR;
 	int ready = 0;
 
-	if ((conf == NULL) || (velocity == NULL)) {
+	if ((conf == NULL) || (velocities == NULL)) {
 		err = ERROR_NULL_POINTER;
 		goto err_occured;
 	}
@@ -703,27 +702,19 @@ err_occured:
 void l3g4200dReadAngularVelocityBulk_Unsafe_DataReady(l3g4200d_conf* conf,
 					int16_t* velocities)
 {
-	int ready = 0;
-	int16_t val = 0x0000;
-
 	l3g4200dRead_Unsafe((uint8_t*)velocities, OUT_X_L, 6, conf);
-
-	*velocity = val;
 }
 
 void l3g4200dReadAngularVelocityBulk_Unsafe(l3g4200d_conf* conf,
 					int16_t* velocities)
 {
 	int ready = 0;
-	int16_t val = 0x0000;
 
 	while (ready == 0) {
 		l3g4200dIsNewDataAvailable_Unsafe(conf, &ready);
 	}
 
 	l3g4200dRead_Unsafe((uint8_t*)velocities, OUT_X_L, 6, conf);
-
-	*velocity = val;
 }
 
 gyro_error l3g4200dSetDataReadyInterrupt(l3g4200d_conf* conf, interrupt_pin_conf* intx_pin_conf)
@@ -773,7 +764,7 @@ gyro_error l3g4200dSetDataReadyInterrupt(l3g4200d_conf* conf, interrupt_pin_conf
 		goto err_occured;
 	}
 
-	value.I2_DRDY = 0x01;
+	reg3_val.I2_DRDY = 0x01;
 
 	if ((err = l3g4200dWrite((uint8_t*)&reg3_val, CTRL_REG3, 1, conf)) != NO_ERROR) {
 		goto err_occured;

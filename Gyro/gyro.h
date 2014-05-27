@@ -10,6 +10,8 @@
 typedef struct {
 	l3g4200d_conf gyroscope;
 	servo_conf servo;
+	int16_t vels[5000];
+	int vels_count;
 } gyro_data_t;
 
 gyro_data_t* get_gyro_data();

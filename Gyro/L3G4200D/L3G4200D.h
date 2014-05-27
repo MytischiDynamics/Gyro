@@ -256,16 +256,36 @@ uint32_t l3g4200dTimeoutCallback();
 gyro_error l3g4200dInit(l3g4200d_conf*, SPI_TypeDef*, uint32_t,
 			SPI_PIN_conf*, SPI_PIN_conf*,
 			SPI_PIN_conf*, SPI_PIN_conf*);
-
 gyro_error l3g4200dSetDataReadyInterrupt(l3g4200d_conf* conf, interrupt_pin_conf* intx_pin_conf);
 
 gyro_error l3g4200dReadAngularVelocity(l3g4200d_conf*, l3g4200d_axis,
-					uint16_t*);
+					int16_t*);
+void l3g4200dReadAngularVelocity_Unsafe_DataReady(l3g4200d_conf* conf, l3g4200d_axis axis,
+					int16_t* velocity);
+void l3g4200dReadAngularVelocity_Unsafe(l3g4200d_conf* conf, l3g4200d_axis axis,
+					int16_t* velocity);
+
+
+gyro_error l3g4200dReadAngularVelocityBulk(l3g4200d_conf* conf,
+					int16_t* velocities);
+void l3g4200dReadAngularVelocityBulk_Unsafe_DataReady(l3g4200d_conf* conf,
+					int16_t* velocities);
+void l3g4200dReadAngularVelocityBulk_Unsafe(l3g4200d_conf* conf,
+					int16_t* velocities);
+
 
 gyro_error l3g4200dRead(uint8_t *buffer, uint8_t addr,
 			     uint16_t bytes_to_read, l3g4200d_conf *conf);
-
+void l3g4200dRead_Unsafe(uint8_t *buffer, uint8_t addr,
+			     uint16_t bytes_to_read, l3g4200d_conf *conf);
 gyro_error l3g4200dWrite(uint8_t *buffer, uint8_t addr,
 			     uint16_t bytes_to_write, l3g4200d_conf *conf);
+void l3g4200dWrite_Unsafe(uint8_t *buffer, uint8_t addr,
+			     uint16_t bytes_to_write, l3g4200d_conf *conf);
+
+void l3g4200dIsNewDataAvailable_Unsafe(l3g4200d_conf* conf, int* available);
+gyro_error l3g4200dIsNewDataAvailable(l3g4200d_conf* conf, int* available);
+
+
 
 #endif
