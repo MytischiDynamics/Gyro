@@ -152,14 +152,18 @@ gyro_error l3g4200dCheckDeviceID(l3g4200d_conf *conf)
 		err = ERROR_NULL_POINTER;
 		goto err_occured;
 	}
+
 	if (l3g4200dIsInitialized(conf) != STRUCT_INITIALIZED) {
 		err = ERROR_DEVICE_NOT_INITIALIZED;
 		goto err_occured;
 	}
+
 	if ((err = l3g4200dRead((uint8_t*)&id, WHO_AM_I, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
+
 	conf->device_id = id.ID;
+
 	if (conf->device_id != DEFAULT_DEVICE_ID) {
 		err = ERROR_DEVICE_ID_NOT_VALID;
 		goto err_occured;
@@ -182,17 +186,27 @@ gyro_error l3g4200dSetODR(l3g4200d_conf *conf, l3g4200d_output_data_rate ODR)
 {
 	gyro_error err;
 	l3g4200d_CTRL_REG1 value;
+
 	if (conf == NULL) {
 		err = ERROR_NULL_POINTER;
 		goto err_occured;
 	}
+
+	if (l3g4200dIsInitialized(conf) != STRUCT_INITIALIZED) {
+		err = ERROR_DEVICE_NOT_INITIALIZED;
+		goto err_occured;
+	}
+
 	if ((err = l3g4200dIsODRInRange(ODR)) != NO_ERROR) {
 		goto err_occured;
 	}
+
 	if ((err = l3g4200dRead((uint8_t*)&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
+
 	value.DR_BW = ODR;
+
 	if ((err = l3g4200dWrite((uint8_t*)&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
@@ -213,13 +227,21 @@ gyro_error l3g4200dSetAxis(l3g4200d_conf *conf, axis_enable axis_state)
 {
 	gyro_error err;
 	l3g4200d_CTRL_REG1 value;
+
 	if (conf == NULL) {
 		err = ERROR_NULL_POINTER;
 		goto err_occured;
 	}
+
+	if (l3g4200dIsInitialized(conf) != STRUCT_INITIALIZED) {
+		err = ERROR_DEVICE_NOT_INITIALIZED;
+		goto err_occured;
+	}
+
 	if ((err = l3g4200dIsAxisStateInRange(axis_state)) != NO_ERROR) {
 		goto err_occured;
 	}
+
 	if ((err = l3g4200dRead((uint8_t*)&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
@@ -231,6 +253,39 @@ gyro_error l3g4200dSetAxis(l3g4200d_conf *conf, axis_enable axis_state)
 	if ((err = l3g4200dWrite((uint8_t*)&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
+err_occured:
+	return err;
+}
+
+gyro_error l3g4200dSetBDU(l3g4200d_conf *conf, uint8_t enable)
+{
+	gyro_error err = NO_ERROR;
+	l3g4200d_CTRL_REG4 reg4_val;
+
+	if (conf == NULL) {
+		err = ERROR_NULL_POINTER;
+		goto err_occured;
+	}
+
+	if (enable > 1) {
+		err = ERROR_VALUE_NOT_IN_RANGE;
+		goto err_occured;
+	}
+
+	if ((err = l3g4200dRead((uint8_t*)&reg4_val, CTRL_REG4, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+
+	if (enable == 0x00) {
+		reg4_val.BDU = 0x00;
+	} else {
+		reg4_val.BDU = 0x01;
+	}
+
+	if ((err = l3g4200dWrite((uint8_t*)&reg4_val, CTRL_REG4, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+
 err_occured:
 	return err;
 }
@@ -248,18 +303,27 @@ gyro_error l3g4200dSetFullscale(l3g4200d_conf *conf, l3g4200d_fullscale_state st
 {
 	gyro_error err;
 	l3g4200d_CTRL_REG4 value;
+
 	if (conf == NULL) {
 		err = ERROR_NULL_POINTER;
 		goto err_occured;
 	}
+
+	if (l3g4200dIsInitialized(conf) != STRUCT_INITIALIZED) {
+		err = ERROR_DEVICE_NOT_INITIALIZED;
+		goto err_occured;
+	}
+
 	if ((err = l3g4200dIsFullscaleStateInRange(st)) != NO_ERROR) {
 		goto err_occured;
 	}
+
 	if ((err = l3g4200dRead((uint8_t*)&value, CTRL_REG4, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
+
 	value.FS = st;
-	value.BDU = 0x01;
+
 	if ((err = l3g4200dWrite((uint8_t*)&value, CTRL_REG4, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
@@ -280,16 +344,24 @@ gyro_error l3g4200dSetMode(l3g4200d_conf *conf, l3g4200d_mode mode)
 {
 	gyro_error err;
 	l3g4200d_CTRL_REG1 value;
+
 	if (conf == NULL) {
 		err = ERROR_NULL_POINTER;
 		goto err_occured;
 	}
+
+	if (l3g4200dIsInitialized(conf) != STRUCT_INITIALIZED) {
+		err = ERROR_DEVICE_NOT_INITIALIZED;
+		goto err_occured;
+	}
+
 	if ((err = l3g4200dIsModeInRange(mode)) != NO_ERROR) {
 		goto err_occured;
 	}
 	if ((err = l3g4200dRead((uint8_t*)&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
+
 	switch (mode) {
 	case (POWER_DOWN):
 		value.PD = 0;
@@ -307,6 +379,7 @@ gyro_error l3g4200dSetMode(l3g4200d_conf *conf, l3g4200d_mode mode)
 		err = ERROR_VALUE_NOT_IN_RANGE;
 		goto err_occured;
 	}
+
 	if ((err = l3g4200dWrite((uint8_t*)&value, CTRL_REG1, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
@@ -328,16 +401,25 @@ gyro_error l3g4200dSetFIFOMode(l3g4200d_conf *conf, l3g4200d_fifo_mode fifo_mode
 	gyro_error err;
 	l3g4200d_CTRL_REG5 val_reg5;
 	l3g4200d_FIFO_CTRL_REG val_fifo_reg;
+
 	if (conf == NULL) {
 		err = ERROR_NULL_POINTER;
 		goto err_occured;
 	}
+
+	if (l3g4200dIsInitialized(conf) != STRUCT_INITIALIZED) {
+		err = ERROR_DEVICE_NOT_INITIALIZED;
+		goto err_occured;
+	}
+
 	if ((err = l3g4200dIsFIFOModeInRange(fifo_mode)) != NO_ERROR) {
 		goto err_occured;
 	}
+
 	if ((err = l3g4200dRead((uint8_t*)&val_reg5, CTRL_REG5, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
+
 	if (fifo_mode == FIFO_DISABLE) {
 		val_reg5.FIFO_EN = 0;
 		if ((err = l3g4200dWrite((uint8_t*)&val_reg5, CTRL_REG5, 1, conf)) != NO_ERROR) {
@@ -378,13 +460,22 @@ gyro_error l3g4200dSetWatermark(l3g4200d_conf *conf, uint8_t wm)
 		err = ERROR_NULL_POINTER;
 		goto err_occured;
 	}
+
+	if (l3g4200dIsInitialized(conf) != STRUCT_INITIALIZED) {
+		err = ERROR_DEVICE_NOT_INITIALIZED;
+		goto err_occured;
+	}
+
 	if ((err = l3g4200dIsWatermarkInRange(wm)) != NO_ERROR) {
 		goto err_occured;
 	}
+
 	if ((err = l3g4200dRead((uint8_t*)&value, FIFO_CTRL_REG, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
+
 	value.WTM = wm;
+
 	if ((err = l3g4200dWrite((uint8_t*)&value, FIFO_CTRL_REG, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
@@ -407,13 +498,13 @@ gyro_error l3g4200dInitDefaultSettings(l3g4200d_conf *conf)
 	if ((err = l3g4200dSetFIFOMode(conf, FIFO_DISABLE)) != NO_ERROR) {
 		goto err_occured;
 	}
-/*	if ((err = l3g4200dSetWatermark(conf, 2)) != NO_ERROR) {
+	if ((err = l3g4200dSetODR(conf, ODR_100Hz_BW_12_5)) != NO_ERROR) {
 		goto err_occured;
 	}
-*/	if ((err = l3g4200dSetODR(conf, ODR_100Hz_BW_12_5)) != NO_ERROR) {
+	if ((err = l3g4200dSetAxis(conf, X_ENABLE/* | Y_ENABLE | Z_ENABLE*/)) != NO_ERROR) {
 		goto err_occured;
 	}
-	if ((err = l3g4200dSetAxis(conf, X_ENABLE | Y_ENABLE | Z_ENABLE)) != NO_ERROR) {
+	if ((err = l3g4200dSetBDU(conf, 1)) != NO_ERROR) {
 		goto err_occured;
 	}
 	if ((err = l3g4200dSetMode(conf, NORMAL)) != NO_ERROR) {
@@ -433,6 +524,11 @@ gyro_error l3g4200dIsNewDataAvailable(l3g4200d_conf* conf, int* available)
 		goto err_occured;
 	}
 
+	if (l3g4200dIsInitialized(conf) != STRUCT_INITIALIZED) {
+		err = ERROR_DEVICE_NOT_INITIALIZED;
+		goto err_occured;
+	}
+
 	if ((err = l3g4200dRead((uint8_t*)&status_reg, STATUS_REG, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
@@ -447,8 +543,21 @@ err_occured:
 	return err;
 }
 
+void l3g4200dIsNewDataAvailable_Unsafe(l3g4200d_conf* conf, int* available)
+{
+	l3g4200d_STATUS_REG status_reg;
+
+	l3g4200dRead_Unsafe((uint8_t*)&status_reg, STATUS_REG, 1, conf);
+
+	if (status_reg.ZYXDA == 1) {
+		*available = 1;
+	} else {
+		*available = 0;
+	}
+}
+
 gyro_error l3g4200dReadAngularVelocity(l3g4200d_conf* conf, l3g4200d_axis axis,
-					uint16_t* velocity)
+					int16_t* velocity)
 {
 	gyro_error err = NO_ERROR;
 	int ready = 0;
@@ -458,6 +567,11 @@ gyro_error l3g4200dReadAngularVelocity(l3g4200d_conf* conf, l3g4200d_axis axis,
 
 	if ((conf == NULL) || (velocity == NULL)) {
 		err = ERROR_NULL_POINTER;
+		goto err_occured;
+	}
+
+	if (l3g4200dIsInitialized(conf) != STRUCT_INITIALIZED) {
+		err = ERROR_DEVICE_NOT_INITIALIZED;
 		goto err_occured;
 	}
 
@@ -503,10 +617,113 @@ gyro_error l3g4200dReadAngularVelocity(l3g4200d_conf* conf, l3g4200d_axis axis,
 			goto err_occured;
 	}
 
-	*velocity = (uint16_t)val_l + (uint16_t)((uint16_t)(val_h) << 8);
+	*velocity = (int16_t)((uint16_t)val_l + (uint16_t)((uint16_t)(val_h) << 8));
 
 err_occured:
 	return err;
+}
+
+void l3g4200dReadAngularVelocity_Unsafe_DataReady(l3g4200d_conf* conf, l3g4200d_axis axis,
+					int16_t* velocity)
+{
+	int ready = 0;
+	int16_t val = 0x0000;
+
+	switch (axis) {
+		case AXIS_X:
+			l3g4200dRead_Unsafe((uint8_t*)&val, OUT_X_L, 2, conf);
+		break;
+		case AXIS_Y:
+			l3g4200dRead_Unsafe((uint8_t*)&val, OUT_Y_L, 2, conf);
+		break;
+		case AXIS_Z:
+			l3g4200dRead_Unsafe((uint8_t*)&val, OUT_Z_L, 2, conf);
+		break;
+	}
+
+	*velocity = val;
+}
+
+void l3g4200dReadAngularVelocity_Unsafe(l3g4200d_conf* conf, l3g4200d_axis axis,
+					int16_t* velocity)
+{
+	int ready = 0;
+	int16_t val = 0x0000;
+
+	while (ready == 0) {
+		l3g4200dIsNewDataAvailable_Unsafe(conf, &ready);
+	}
+
+	switch (axis) {
+		case AXIS_X:
+			l3g4200dRead_Unsafe((uint8_t*)&val, OUT_X_L, 2, conf);
+		break;
+		case AXIS_Y:
+			l3g4200dRead_Unsafe((uint8_t*)&val, OUT_Y_L, 2, conf);
+		break;
+		case AXIS_Z:
+			l3g4200dRead_Unsafe((uint8_t*)&val, OUT_Z_L, 2, conf);
+		break;
+	}
+
+	*velocity = val;
+}
+
+gyro_error l3g4200dReadAngularVelocityBulk(l3g4200d_conf* conf,
+					int16_t* velocities)
+{
+	gyro_error err = NO_ERROR;
+	int ready = 0;
+
+	if ((conf == NULL) || (velocity == NULL)) {
+		err = ERROR_NULL_POINTER;
+		goto err_occured;
+	}
+
+	if (l3g4200dIsInitialized(conf) != STRUCT_INITIALIZED) {
+		err = ERROR_DEVICE_NOT_INITIALIZED;
+		goto err_occured;
+	}
+
+	while (ready == 0) {
+		if ((err = l3g4200dIsNewDataAvailable(conf, &ready)) != NO_ERROR) {
+			goto err_occured;
+		}
+	}
+
+	if ((err = l3g4200dRead((uint8_t*)velocities, OUT_X_L,
+							6, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+
+err_occured:
+	return err;
+}
+
+void l3g4200dReadAngularVelocityBulk_Unsafe_DataReady(l3g4200d_conf* conf,
+					int16_t* velocities)
+{
+	int ready = 0;
+	int16_t val = 0x0000;
+
+	l3g4200dRead_Unsafe((uint8_t*)velocities, OUT_X_L, 6, conf);
+
+	*velocity = val;
+}
+
+void l3g4200dReadAngularVelocityBulk_Unsafe(l3g4200d_conf* conf,
+					int16_t* velocities)
+{
+	int ready = 0;
+	int16_t val = 0x0000;
+
+	while (ready == 0) {
+		l3g4200dIsNewDataAvailable_Unsafe(conf, &ready);
+	}
+
+	l3g4200dRead_Unsafe((uint8_t*)velocities, OUT_X_L, 6, conf);
+
+	*velocity = val;
 }
 
 gyro_error l3g4200dSetDataReadyInterrupt(l3g4200d_conf* conf, interrupt_pin_conf* intx_pin_conf)
@@ -516,10 +733,17 @@ gyro_error l3g4200dSetDataReadyInterrupt(l3g4200d_conf* conf, interrupt_pin_conf
 	NVIC_InitTypeDef NVIC_InitStructure;
 	EXTI_InitTypeDef EXTI_InitStructure;
 
-	l3g4200d_CTRL_REG3 value;
+	l3g4200d_CTRL_REG3 reg3_val;
+	l3g4200d_CTRL_REG1 reg1_val;
+	int16_t temp_vel;
 
-	if (intx_pin_conf == NULL) {
+	if ((conf == NULL) || (intx_pin_conf == NULL)) {
 		err = ERROR_NULL_POINTER;
+		goto err_occured;
+	}
+
+	if (l3g4200dIsInitialized(conf) != STRUCT_INITIALIZED) {
+		err = ERROR_DEVICE_NOT_INITIALIZED;
 		goto err_occured;
 	}
 
@@ -545,18 +769,39 @@ gyro_error l3g4200dSetDataReadyInterrupt(l3g4200d_conf* conf, interrupt_pin_conf
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
-	if ((err = l3g4200dRead((uint8_t*)&value, CTRL_REG3, 1, conf)) != NO_ERROR) {
+	if ((err = l3g4200dRead((uint8_t*)&reg3_val, CTRL_REG3, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
 
 	value.I2_DRDY = 0x01;
 
-	if ((err = l3g4200dWrite((uint8_t*)&value, CTRL_REG3, 1, conf)) != NO_ERROR) {
+	if ((err = l3g4200dWrite((uint8_t*)&reg3_val, CTRL_REG3, 1, conf)) != NO_ERROR) {
 		goto err_occured;
 	}
 
-	uint16_t vels[3];
-	l3g4200dRead((uint8_t*)vels, OUT_X_L, 6, conf);
+//Get active axes and read data to start interrupts from gyro
+	if ((err = l3g4200dRead((uint8_t*)&reg1_val, CTRL_REG1, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+
+	if (reg1_val.Xen == 0x01) {
+		if ((err = l3g4200dReadAngularVelocity(conf, AXIS_X,
+				&temp_vel)) != NO_ERROR) {
+			goto err_occured;
+		}
+	}
+	if (reg1_val.Yen == 0x01) {
+		if ((err = l3g4200dReadAngularVelocity(conf, AXIS_Y,
+				&temp_vel)) != NO_ERROR) {
+			goto err_occured;
+		}
+	}
+	if (reg1_val.Zen == 0x01) {
+		if ((err = l3g4200dReadAngularVelocity(conf, AXIS_Z,
+				&temp_vel)) != NO_ERROR) {
+			goto err_occured;
+		}
+	}
 
 err_occured:
 	return err;
@@ -621,33 +866,58 @@ gyro_error l3g4200dCsHigh(l3g4200d_connectivity_conf *conn)
 	}
 }
 
-uint8_t l3g4200dSendByte(l3g4200d_connectivity_conf *conn, uint8_t msg)
+static uint8_t l3g4200dSendByte(l3g4200d_connectivity_conf *conn, uint8_t msg)
 {
 	uint32_t timeout_counter = L3G4200D_TIMEOUT_COUNTER;
+
 	if (conn == NULL) {
 		return 0;
-	} else {
-		while(SPI_I2S_GetFlagStatus(conn->SPIx, SPI_I2S_FLAG_TXE) == RESET) {
-			if((timeout_counter--) == 0) {
-				return l3g4200dTimeoutCallback();
-			}
-		}
-		SPI_I2S_SendData(conn->SPIx, (uint16_t)msg);
-		
-		timeout_counter = L3G4200D_TIMEOUT_COUNTER;
-		while (SPI_I2S_GetFlagStatus(conn->SPIx, SPI_I2S_FLAG_RXNE) == RESET) {
-			if((timeout_counter--) == 0) {
-				return l3g4200dTimeoutCallback();
-			}
-		}
-		return (uint8_t)SPI_I2S_ReceiveData(conn->SPIx);
 	}
+
+	if (conn->init_status != STRUCT_INITIALIZED) {
+		return 0;
+	}
+
+	while(SPI_I2S_GetFlagStatus(conn->SPIx, SPI_I2S_FLAG_TXE) == RESET) {
+		if((timeout_counter--) == 0) {
+			return l3g4200dTimeoutCallback();
+		}
+	}
+	SPI_I2S_SendData(conn->SPIx, (uint16_t)msg);
+
+	timeout_counter = L3G4200D_TIMEOUT_COUNTER;
+	while (SPI_I2S_GetFlagStatus(conn->SPIx, SPI_I2S_FLAG_RXNE) == RESET) {
+		if((timeout_counter--) == 0) {
+			return l3g4200dTimeoutCallback();
+		}
+	}
+	return (uint8_t)SPI_I2S_ReceiveData(conn->SPIx);
+}
+
+static uint8_t l3g4200dSendByte_Unsafe(l3g4200d_connectivity_conf *conn, uint8_t msg)
+{
+	uint32_t timeout_counter = L3G4200D_TIMEOUT_COUNTER;
+
+	while(SPI_I2S_GetFlagStatus(conn->SPIx, SPI_I2S_FLAG_TXE) == RESET) {
+		if((timeout_counter--) == 0) {
+			return l3g4200dTimeoutCallback();
+		}
+	}
+	SPI_I2S_SendData(conn->SPIx, (uint16_t)msg);
+
+	timeout_counter = L3G4200D_TIMEOUT_COUNTER;
+	while (SPI_I2S_GetFlagStatus(conn->SPIx, SPI_I2S_FLAG_RXNE) == RESET) {
+		if((timeout_counter--) == 0) {
+			return l3g4200dTimeoutCallback();
+		}
+	}
+	return (uint8_t)SPI_I2S_ReceiveData(conn->SPIx);
 }
 
 gyro_error l3g4200dRead(uint8_t *buffer, uint8_t addr,
 			     uint16_t bytes_to_read, l3g4200d_conf *conf)
 {
-	uint8_t address = 0;	
+	uint8_t address = 0;
 	gyro_error ret_err = NO_ERROR;
 
 	if (buffer == NULL || conf == NULL) {
@@ -684,6 +954,33 @@ read_err:
 	return ret_err;
 }
 
+void l3g4200dRead_Unsafe(uint8_t *buffer, uint8_t addr,
+			     uint16_t bytes_to_read, l3g4200d_conf *conf)
+{
+	uint8_t address = 0;
+
+	if (bytes_to_read > 1) {
+		address = (uint8_t)(READWRITE_CMD | MULTIPLEBYTE_CMD | addr);
+	} else {
+		address = (uint8_t)(READWRITE_CMD | addr);
+	}
+
+	GPIO_ResetBits(conf->connectivity.cs_pin.SPIx_GPIO_PORT,
+				   conf->connectivity.cs_pin.SPIx_PIN);
+
+	l3g4200dSendByte_Unsafe(&(conf->connectivity), address);
+
+	while(bytes_to_read > 0) {
+/* Send dummy byte (0x00) to generate the SPI clock to L3G4200D (Slave device) */
+		*buffer = l3g4200dSendByte_Unsafe(&(conf->connectivity), DUMMY_BYTE);
+		bytes_to_read--;
+		buffer++;
+	}
+
+	GPIO_SetBits(conf->connectivity.cs_pin.SPIx_GPIO_PORT,
+				 conf->connectivity.cs_pin.SPIx_PIN);
+}
+
 gyro_error l3g4200dWrite(uint8_t *buffer, uint8_t addr,
 			     uint16_t bytes_to_write, l3g4200d_conf *conf)
 {
@@ -698,11 +995,9 @@ gyro_error l3g4200dWrite(uint8_t *buffer, uint8_t addr,
 		return ERROR_VALUE_NOT_IN_RANGE;
 	} else {
 		if (bytes_to_write > 1) {
-//			address = (uint8_t)(READWRITE_CMD | MULTIPLEBYTE_CMD | addr);
 			address = (uint8_t)(MULTIPLEBYTE_CMD | addr);
 		} else {
 			address = (uint8_t)addr;
-//			address = (uint8_t)(READWRITE_CMD | addr);
 		}
 		ret_err = l3g4200dCsLow(&(conf->connectivity));
 		if (ret_err != NO_ERROR)
@@ -722,6 +1017,32 @@ gyro_error l3g4200dWrite(uint8_t *buffer, uint8_t addr,
 	return NO_ERROR;
 write_err:
 	return ret_err;
+}
+
+void l3g4200dWrite_Unsafe(uint8_t *buffer, uint8_t addr,
+			     uint16_t bytes_to_write, l3g4200d_conf *conf)
+{
+	uint8_t address = 0;
+
+	if (bytes_to_write > 1) {
+		address = (uint8_t)(MULTIPLEBYTE_CMD | addr);
+	} else {
+		address = (uint8_t)addr;
+	}
+
+	GPIO_ResetBits(conf->connectivity.cs_pin.SPIx_GPIO_PORT,
+				   conf->connectivity.cs_pin.SPIx_PIN);
+
+	l3g4200dSendByte_Unsafe(&(conf->connectivity), address);
+
+	while (bytes_to_write >= 1) {
+		l3g4200dSendByte_Unsafe(&(conf->connectivity), *buffer);
+		buffer++;
+		bytes_to_write--;
+	}
+
+	GPIO_SetBits(conf->connectivity.cs_pin.SPIx_GPIO_PORT,
+				 conf->connectivity.cs_pin.SPIx_PIN);
 }
 
 /*TODO: make device reset procedure*/

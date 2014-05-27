@@ -149,12 +149,8 @@ void EXTI1_IRQHandler(void)
 	gyro_data_t* gd = get_gyro_data();
 
 	int16_t velx = 0;
-	uint16_t vely = 0;
-	uint16_t velz = 0;
 
-	l3g4200dReadAngularVelocity(&(gd->gyroscope), AXIS_X, &velx);
-	l3g4200dReadAngularVelocity(&(gd->gyroscope), AXIS_Y, &vely);
-	l3g4200dReadAngularVelocity(&(gd->gyroscope), AXIS_Z, &velz);
+	l3g4200dReadAngularVelocity_Unsafe_DataReady(gd->gyroscope, AXIS_X, &velx);
 
 	EXTI_ClearITPendingBit(gd->gyroscope.connectivity.int2_pin.EXTI_line);
 }

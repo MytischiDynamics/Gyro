@@ -259,10 +259,8 @@ gyro_error l3g4200dInit(l3g4200d_conf*, SPI_TypeDef*, uint32_t,
 
 gyro_error l3g4200dSetDataReadyInterrupt(l3g4200d_conf* conf, interrupt_pin_conf* intx_pin_conf);
 
-
 gyro_error l3g4200dReadAngularVelocity(l3g4200d_conf*, l3g4200d_axis,
 					uint16_t*);
-
 
 gyro_error l3g4200dRead(uint8_t *buffer, uint8_t addr,
 			     uint16_t bytes_to_read, l3g4200d_conf *conf);
