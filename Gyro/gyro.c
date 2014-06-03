@@ -1,6 +1,9 @@
 #include "gyro.h"
 
+#define BLOCK_SIZE 32
+
 gyro_data_t g_gyro;
+int16_t vels[BLOCK_SIZE * 2];
 
 gyro_data_t* get_gyro_data()
 {
@@ -15,6 +18,10 @@ gyro_error FillGlobalData(gyro_data_t *g_data)
 	SPI_PIN_conf mosi_pin;
 	SPI_PIN_conf cs_pin;
 	interrupt_pin_conf int2_pin_conf;
+
+	if ( (err = InitDataBuffer(&(g_data->vel_data), BLOCK_SIZE, vels)) != NO_ERROR) {
+		goto err_occured;
+	}
 	
 	sck_pin.SPIx_PIN = GPIO_Pin_5;
 	sck_pin.SPIx_GPIO_PORT = GPIOA;
@@ -51,7 +58,6 @@ gyro_error FillGlobalData(gyro_data_t *g_data)
 
 	GPIO_SetBits(GPIOE, GPIO_Pin_3);
 ///////////////////////////////////////////////////
-
 
 	if ( (err = l3g4200dInit(&(g_data->gyroscope),
 			SPI1, RCC_APB2Periph_SPI1,
@@ -93,7 +99,6 @@ int main(void)
 	if((FillGlobalData(&g_gyro)) != NO_ERROR) {
 		goto err_occured;
 	}
-	g_gyro.vels_count = 0;
 
 	while(1) {
 

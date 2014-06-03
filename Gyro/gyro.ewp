@@ -1877,6 +1877,15 @@
     </file>
   </group>
   <group>
+    <name>DataBuffer</name>
+    <file>
+      <name>$PROJ_DIR$\DataBuffer\data_buffer.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\DataBuffer\data_buffer.h</name>
+    </file>
+  </group>
+  <group>
     <name>L3G4200D</name>
     <file>
       <name>$PROJ_DIR$\L3G4200D\L3G4200D.c</name>
