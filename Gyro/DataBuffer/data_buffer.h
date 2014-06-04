@@ -9,8 +9,9 @@
 typedef struct {
 	int16_t* buffer;
 	int16_t* current_session_buffer_start;
+	int16_t* previous_session_buffer_start;
 	int counter;
-
+	int block_ready;
 	int size;
 } data_buffer;
 

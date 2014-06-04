@@ -16,6 +16,8 @@ gyro_error InitDataBuffer(data_buffer* db, uint16_t block_size, int16_t* buffer)
 	db->size = block_size;
 	db->buffer = buffer;
 	db->current_session_buffer_start = db->buffer;
+	db->previous_session_buffer_start = db->buffer + db->size;
+	db->block_ready = 0;
 
 err_occured :
 	return err;
@@ -32,10 +34,13 @@ gyro_error WriteValue(data_buffer *db, int16_t value)
 	if (db->counter > db->size - 1) {
 		db->counter = 0;
 		if (db->current_session_buffer_start == db->buffer + db->size) {
+			db->previous_session_buffer_start = db->current_session_buffer_start;
 			db->current_session_buffer_start = db->buffer;
 		} else if (db->current_session_buffer_start == db->buffer) {
+			db->previous_session_buffer_start = db->current_session_buffer_start;
 			db->current_session_buffer_start = db->buffer + db->size;
 		}
+		db->block_ready = 1;
 	}
 	*(db->current_session_buffer_start + db->counter) = value;
 	db->counter++;
