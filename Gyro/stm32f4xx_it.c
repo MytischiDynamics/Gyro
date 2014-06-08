@@ -142,6 +142,9 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
+while(1)
+{
+}
   //TimingDelay_Decrement();
 }
 
@@ -149,12 +152,13 @@ void EXTI1_IRQHandler(void)
 {
 	gyro_data_t* gd = get_gyro_data();
 
-	int16_t vels[3];
+	int16_t velxx = 0;
+	uint8_t test_reg;
 
-//	l3g4200dReadAngularVelocity_Unsafe_DataReady(&(gd->gyroscope), AXIS_X, &velx);
-	l3g4200dReadAngularVelocityBulk_Unsafe(&(gd->gyroscope),
-					vels);
-	WriteValue(&(gd->vel_data), vels[0]);
+	l3g4200dReadAngularVelocity_Unsafe_DataReady(&(gd->gyroscope), AXIS_X, &velxx);
+//	l3g4200dReadAngularVelocityBulk_Unsafe_DataReady(&(gd->gyroscope),
+//							vels);
+	WriteValue(&(gd->vel_data), velxx);
 
 	EXTI_ClearITPendingBit(gd->gyroscope.connectivity.int2_pin.EXTI_line);
 }

@@ -125,7 +125,7 @@ gyro_error l3g4200dInitPeriph(l3g4200d_connectivity_conf *conn)
 		SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
 		SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
 		SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
-		SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_128;
+		SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2;
 		SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
 		SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
 		SPI_Init(conn->SPIx, &SPI_InitStructure);
@@ -498,10 +498,10 @@ gyro_error l3g4200dInitDefaultSettings(l3g4200d_conf *conf)
 	if ((err = l3g4200dSetFIFOMode(conf, FIFO_DISABLE)) != NO_ERROR) {
 		goto err_occured;
 	}
-	if ((err = l3g4200dSetODR(conf, ODR_100Hz_BW_12_5)) != NO_ERROR) {
+	if ((err = l3g4200dSetODR(conf, ODR_800Hz_BW_30)) != NO_ERROR) {
 		goto err_occured;
 	}
-	if ((err = l3g4200dSetAxis(conf, X_ENABLE | Y_ENABLE | Z_ENABLE)) != NO_ERROR) {
+	if ((err = l3g4200dSetAxis(conf, X_ENABLE/* | Y_ENABLE | Z_ENABLE*/)) != NO_ERROR) {
 		goto err_occured;
 	}
 	if ((err = l3g4200dSetBDU(conf, 1)) != NO_ERROR) {
@@ -742,7 +742,7 @@ gyro_error l3g4200dSetDataReadyInterrupt(l3g4200d_conf* conf, interrupt_pin_conf
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
 	GPIO_InitStructure.GPIO_Pin = intx_pin_conf->INTx_pin;
 	GPIO_Init(intx_pin_conf->INTx_GPIO_PORT, &GPIO_InitStructure);
 
@@ -792,7 +792,7 @@ gyro_error l3g4200dSetDataReadyInterrupt(l3g4200d_conf* conf, interrupt_pin_conf
 				&temp_vel)) != NO_ERROR) {
 			goto err_occured;
 		}
-	}
+	}	
 
 err_occured:
 	return err;

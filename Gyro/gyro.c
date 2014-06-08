@@ -23,8 +23,8 @@ gyro_error FillFilterCoefs(int16_t* coef_array)
 	}
 
 	for (i = 0; i < BLOCK_SIZE/2; i++) {
-		coef_array[i] = 0;
-		coef_array[BLOCK_SIZE/2 + i] = 1;
+		coef_array[i] = 4096;
+		coef_array[BLOCK_SIZE/2 + i] = 4096;
 	}
 err_occured:
 	return err;
@@ -44,8 +44,8 @@ gyro_error FillGlobalData(gyro_data_t *g_data)
 	}
 
 	FillFilterCoefs(coefs);
-	arm_fir_decimate_init_q15(&(g_data->filter), BLOCK_SIZE, BLOCK_SIZE, coefs, f_states, BLOCK_SIZE);
-	
+	arm_fir_decimate_init_q15(&(g_data->filter), 8, 32, coefs, f_states, BLOCK_SIZE);
+
 	sck_pin.SPIx_PIN = GPIO_Pin_5;
 	sck_pin.SPIx_GPIO_PORT = GPIOA;
 	sck_pin.SPIx_GPIO_CLK = RCC_AHB1Periph_GPIOA;
@@ -90,11 +90,18 @@ gyro_error FillGlobalData(gyro_data_t *g_data)
 
 	int2_pin_conf.INTx_pin = GPIO_Pin_1;
 	int2_pin_conf.INTx_GPIO_PORT = GPIOB;
+//	int2_pin_conf.INTx_pin = GPIO_Pin_0;
+//	int2_pin_conf.INTx_GPIO_PORT = GPIOA;
 	int2_pin_conf.INTx_GPIO_CLK = RCC_AHB1Periph_GPIOB;
 	int2_pin_conf.EXTI_port_source = EXTI_PortSourceGPIOB;
+//	int2_pin_conf.INTx_GPIO_CLK = RCC_AHB1Periph_GPIOA;
+//	int2_pin_conf.EXTI_port_source = EXTI_PortSourceGPIOA;
 	int2_pin_conf.EXTI_pin_source = EXTI_PinSource1;
+//	int2_pin_conf.EXTI_pin_source = EXTI_PinSource0;
 	int2_pin_conf.EXTI_line = EXTI_Line1;
+//	int2_pin_conf.EXTI_line = EXTI_Line0;
 	int2_pin_conf.EXTIx_irqn = EXTI1_IRQn;
+//	int2_pin_conf.EXTIx_irqn = EXTI0_IRQn;
 
 	if ( (err = l3g4200dSetDataReadyInterrupt(&(g_data->gyroscope), &int2_pin_conf)) != NO_ERROR) {
 		goto err_occured;
@@ -119,17 +126,15 @@ int main(void)
   system_stm32f4xx.c file
 */
 //	gyro_error err;
-	int16_t dst[32];
+	int16_t filtered_vel;
 	if((FillGlobalData(&g_gyro)) != NO_ERROR) {
 		goto err_occured;
 	}
-
 	while(1) {
 		if (g_gyro.vel_data.block_ready == 1) {
 			g_gyro.vel_data.block_ready = 0;
-			arm_fir_decimate_q15(&(g_gyro.filter), g_gyro.vel_data.previous_session_buffer_start, dst, BLOCK_SIZE);
+			arm_fir_decimate_q15(&(g_gyro.filter), g_gyro.vel_data.previous_session_buffer_start, &filtered_vel, BLOCK_SIZE);
 		}
-		
 	}
 
 err_occured:
