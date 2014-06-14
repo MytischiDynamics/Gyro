@@ -293,6 +293,7 @@ void l3g4200dReadAngularVelocityBulk_Unsafe_DataReady(l3g4200d_conf* conf,
 void l3g4200dReadAngularVelocityBulk_Unsafe(l3g4200d_conf* conf,
 					int16_t* velocities);
 
+gyro_error l3g4200dReadTemperature(l3g4200d_conf* conf, uint8_t* temperature);
 
 gyro_error l3g4200dRead(uint8_t *buffer, uint8_t addr,
 			     uint16_t bytes_to_read, l3g4200d_conf *conf);

@@ -512,6 +512,26 @@ err_occured:
 	return err;
 }
 
+gyro_error l3g4200dReadTemperature(l3g4200d_conf* conf, uint8_t* temperature)
+{
+	gyro_error err = NO_ERROR;
+	l3g4200d_OUT_TEMP value;
+
+	if ((conf == NULL) || (temperature == NULL)) {
+		err = ERROR_NULL_POINTER;
+		goto err_occured;
+	}
+
+	if ((err = l3g4200dRead((uint8_t*)&value, OUT_TEMP, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+
+	*temperature = value.Temp;
+
+err_occured:
+	return err;
+}
+
 gyro_error l3g4200dInitDefaultSettings(l3g4200d_conf *conf)
 {
 	gyro_error err = NO_ERROR;
