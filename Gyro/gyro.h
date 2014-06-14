@@ -14,8 +14,7 @@ typedef struct {
 	servo_conf servo;
 	data_buffer vel_data;
 	arm_fir_decimate_instance_q15 filter;
-//	int16_t vels[5000];
-//	int vels_count;
+	arm_pid_instance_q15 regulator;
 } gyro_data_t;
 
 gyro_data_t* get_gyro_data();

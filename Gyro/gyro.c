@@ -23,8 +23,10 @@ gyro_error FillFilterCoefs(int16_t* coef_array)
 	}
 
 	for (i = 0; i < BLOCK_SIZE/2; i++) {
-		coef_array[i] = 4096;
-		coef_array[BLOCK_SIZE/2 + i] = 4096;
+		coef_array[i] = 0;
+	}
+	for (i = BLOCK_SIZE/2; i< BLOCK_SIZE; i++) {
+		coef_array[i] = 2048;
 	}
 err_occured:
 	return err;
@@ -44,7 +46,12 @@ gyro_error FillGlobalData(gyro_data_t *g_data)
 	}
 
 	FillFilterCoefs(coefs);
-	arm_fir_decimate_init_q15(&(g_data->filter), 8, 32, coefs, f_states, BLOCK_SIZE);
+	arm_fir_decimate_init_q15(&(g_data->filter), BLOCK_SIZE, BLOCK_SIZE, coefs, f_states, BLOCK_SIZE);
+
+	g_data->regulator.Kp = 150;
+	g_data->regulator.Kd = 0;
+	g_data->regulator.Ki = 0;
+	arm_pid_init_q15(&(g_data->regulator), 0);
 
 	sck_pin.SPIx_PIN = GPIO_Pin_5;
 	sck_pin.SPIx_GPIO_PORT = GPIOA;
@@ -108,10 +115,10 @@ gyro_error FillGlobalData(gyro_data_t *g_data)
 	}
 
 //TIM3 CH1 PC6
-/*	if( (err = ServoInit(&(g_gyro.servo), GPIO_Pin_6,
+	if( (err = ServoInit(&(g_gyro.servo), GPIO_Pin_6,
 			     GPIOC, TIM3, 1)) != NO_ERROR ) {
 		goto err_occured;
-	}*/
+	}
 err_occured:
 	return err;
 }
@@ -126,14 +133,32 @@ int main(void)
   system_stm32f4xx.c file
 */
 //	gyro_error err;
-	int16_t filtered_vel;
+	int16_t filtered_vel = 0;
+	int16_t new_speed = 0;
+	int pid_cycles = 0;
 	if((FillGlobalData(&g_gyro)) != NO_ERROR) {
 		goto err_occured;
 	}
+
 	while(1) {
 		if (g_gyro.vel_data.block_ready == 1) {
 			g_gyro.vel_data.block_ready = 0;
 			arm_fir_decimate_q15(&(g_gyro.filter), g_gyro.vel_data.previous_session_buffer_start, &filtered_vel, BLOCK_SIZE);
+			new_speed = arm_pid_q15(&(g_gyro.regulator), filtered_vel+15);
+			if (new_speed > 350) {
+				new_speed = 350;
+			} else if (new_speed < -350) {
+				new_speed = -350;
+			} /*else if ((new_speed > -15) && (new_speed < 15)) {
+				new_speed = 0;
+				arm_pid_reset_q15(&(g_gyro.regulator));
+			}*/
+			ServoSetSpeed(&(g_gyro.servo), 1500 + new_speed);
+/*			if(pid_cycles++ > 90) {
+				arm_pid_reset_q15(&(g_gyro.regulator));
+				pid_cycles = 0;
+			}
+			*/
 		}
 	}
 

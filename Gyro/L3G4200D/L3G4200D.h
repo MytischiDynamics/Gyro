@@ -83,6 +83,26 @@ typedef enum {
 } l3g4200d_mode;
 
 typedef enum {
+	HPM_NORMAL_MODE_RES	= 0x00,
+	HPM_REF_SIGNAL		= 0x01,
+	HPM_NORMAL_MODE		= 0x02,
+	HPM_AUTORESET_INT	= 0x03
+} l3g4200d_HPF_mode;
+
+typedef enum {
+	HPFCF_0 = 0x00,
+	HPFCF_1 = 0x01,
+	HPFCF_2 = 0x02,
+	HPFCF_3 = 0x03,
+	HPFCF_4 = 0x04,
+	HPFCF_5 = 0x05,
+	HPFCF_6 = 0x06,
+	HPFCF_7 = 0x07,
+	HPFCF_8 = 0x08,
+	HPFCF_9 = 0x09
+} l3g4200d_HPFCutOffFreq;
+
+typedef enum {
 	FIFO_DISABLE			= 0x05,
 	FIFO_BYPASS_MODE		= 0x00,
 	FIFO_MODE			= 0x01,
@@ -110,9 +130,9 @@ typedef struct {
 } l3g4200d_CTRL_REG1;
 
 typedef struct {
-	uint8_t HPCF	: 4;
-	uint8_t HPM	: 2;
-	uint8_t		: 2;
+	l3g4200d_HPFCutOffFreq HPCF	: 4;
+	l3g4200d_HPF_mode HPM		: 2;
+	uint8_t				: 2;
 } l3g4200d_CTRL_REG2;
 
 typedef struct {

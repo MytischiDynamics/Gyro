@@ -483,6 +483,35 @@ err_occured:
 	return err;
 }
 
+gyro_error l3g4200dSetHPF(l3g4200d_conf *conf, l3g4200d_HPF_mode mode, l3g4200d_HPFCutOffFreq freq)
+{
+	gyro_error err = NO_ERROR;
+	l3g4200d_CTRL_REG2 value;
+
+	if (conf == NULL) {
+		err = ERROR_NULL_POINTER;
+		goto err_occured;
+	}
+	if ((mode > HPM_AUTORESET_INT) || (freq > HPFCF_9)) {
+		err = ERROR_VALUE_NOT_IN_RANGE;
+		goto err_occured;
+	}
+
+	if ((err = l3g4200dRead((uint8_t*)&value, CTRL_REG2, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+
+	value.HPCF = freq;
+	value.HPM = mode;
+
+	if ((err = l3g4200dWrite((uint8_t*)&value, CTRL_REG2, 1, conf)) != NO_ERROR) {
+		goto err_occured;
+	}
+
+err_occured:
+	return err;
+}
+
 gyro_error l3g4200dInitDefaultSettings(l3g4200d_conf *conf)
 {
 	gyro_error err = NO_ERROR;
@@ -495,13 +524,16 @@ gyro_error l3g4200dInitDefaultSettings(l3g4200d_conf *conf)
 	if ((err = l3g4200dSetFullscale(conf, FULLSCALE_250)) != NO_ERROR) {
 		goto err_occured;
 	}
+/*	if ((err = l3g4200dSetHPF(conf, HPM_NORMAL_MODE, HPFCF_7)) != NO_ERROR) {
+		goto err_occured;
+	}*/
 	if ((err = l3g4200dSetFIFOMode(conf, FIFO_DISABLE)) != NO_ERROR) {
 		goto err_occured;
 	}
 	if ((err = l3g4200dSetODR(conf, ODR_800Hz_BW_30)) != NO_ERROR) {
 		goto err_occured;
 	}
-	if ((err = l3g4200dSetAxis(conf, X_ENABLE/* | Y_ENABLE | Z_ENABLE*/)) != NO_ERROR) {
+	if ((err = l3g4200dSetAxis(conf, X_ENABLE | Y_ENABLE | Z_ENABLE)) != NO_ERROR) {
 		goto err_occured;
 	}
 	if ((err = l3g4200dSetBDU(conf, 1)) != NO_ERROR) {
